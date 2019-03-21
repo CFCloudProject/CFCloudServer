@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3427e958-c2d5-40fa-b33b-a4f463eec2ef</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>CFCloudServer.py</StartupFile>
+    <StartupFile>Start.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -21,7 +21,90 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CFCloudServer.py" />
+    <Compile Include="AmazonS3Connector\Config.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AmazonS3Connector\S3Connector.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AmazonS3Connector\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Cache\LRUCache.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Cache\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="OT\diff_match_patch.py" />
+    <Compile Include="Start.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GRPCServer\GRPCServerImpl.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GRPCServer\GRPCServer_pb2.py" />
+    <Compile Include="GRPCServer\GRPCServer_pb2_grpc.py" />
+    <Compile Include="GRPCServer\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Models\Block.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Models\Container.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Models\Metadata.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Models\PsiNode.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Models\User.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Models\VersionNode.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Models\VersionVector.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Models\VitrualBlock.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Models\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MysqlConnector\BIDConnector.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MysqlConnector\Config.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MysqlConnector\Connector.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MysqlConnector\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="OT\Operation.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="OT\OTFunctions.py" />
+    <Compile Include="OT\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="AmazonS3Connector\" />
+    <Folder Include="Cache\" />
+    <Folder Include="GRPCServer\" />
+    <Folder Include="Models\" />
+    <Folder Include="MysqlConnector\" />
+    <Folder Include="OT\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="GRPCServer\GRPCServer.proto" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

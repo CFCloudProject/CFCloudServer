@@ -4,31 +4,17 @@ import six
 
 class Container(object):
 
-    def __init__(self):
-        self.id = Global.get_new_container_id()
-        self.data = b''
-        self.fragments = []
-        self.dirty = False
+    def __init__(self, container_id = None):
+        if container_id is None:
+            self.id = Global.get_new_container_id()
+            self.data = b''
+            self.fragments = []
+            self.dirty = False
+        else:
+            self.id = container_id
 
-    def load(self, container_id):
-        key = 'Container_' + str(container_id)
-        data = Global._S3Connector.download(key)
-        if data is None:
-            return False
-        self.id = container_id
-        self.data = data
-        self.dirty = False
-        #initilize fragment information
-        pos = 0
-        length = len(self.data)
-        while pos < length:
-            index = self.data[pos : pos + 20]
-            size = self.data[pos + 20 : pos + 22]
-            size = size[0] * 256 + size[1]
-            if index == b'\x00' * 20:
-                self.add_fragment(Fragment(pos, size + 22))
-            pos += size + 22
-        return True
+    def IsDirty(self):
+        return self.dirty
 
     def write_back(self):
         key = 'Container_' + str(self.id)
@@ -42,7 +28,7 @@ class Container(object):
             else:
                 return False
 
-    def read_data(self, block):
+    def read_block(self, block):
         if block.container_id != self.id:
             return None
         offset = block.offset
@@ -56,7 +42,7 @@ class Container(object):
         offset += 2
         return self.data[offset : offset + size]
 
-    def write_data(self, block_id, data):
+    def write_block(self, block_id, data):
         data_head = bytes.fromhex(block_id)
         size = len(data)
         data_size = six.int2byte(int(size / 256)) + six.int2byte(size % 256)
@@ -181,3 +167,23 @@ def quick_sort(list, start, end):
             break
     quick_sort(list,start, i - 1)
     quick_sort(list, i + 1, end)
+
+def load(container_id):
+    key = 'Container_' + str(container_id)
+    data = Global._S3Connector.download(key)
+    if data is None:
+        return None
+    container = Container(container_id)
+    container.data = data
+    container.dirty = False
+    #initilize fragment information
+    pos = 0
+    length = len(container.data)
+    while pos < length:
+        index = container.data[pos : pos + 20]
+        size = container.data[pos + 20 : pos + 22]
+        size = size[0] * 256 + size[1]
+        if index == b'\x00' * 20:
+            container.add_fragment(Fragment(pos, size + 22))
+        pos += size + 22
+    return container

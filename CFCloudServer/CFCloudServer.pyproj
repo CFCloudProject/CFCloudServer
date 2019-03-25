@@ -22,7 +22,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Cache\LRUCache.py">
+    <Compile Include="Cache\ContainerCache.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Cache\__init__.py">
@@ -52,7 +52,7 @@
     <Compile Include="Models\Metadata.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\PsiNode.py">
+    <Compile Include="Models\PSINode.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Models\User.py">

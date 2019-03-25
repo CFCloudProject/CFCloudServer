@@ -1,4 +1,4 @@
-class PsiNode(object):
+class PSINode(object):
     """description of class"""
 
 

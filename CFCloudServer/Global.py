@@ -1,3 +1,7 @@
+import S3Connector
+from MysqlConnector import *
+from Cache import *
+
 #S3 Config
 access_key = 'AKIAI3GZAZ77PXWO3HOQ'
 secret_key = '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'
@@ -21,10 +25,11 @@ def get_new_container_id():
     global_container_id += 1
     return global_container_id
 
-import S3Connector
-from MysqlConnector import *
+#Container Cache Settings
+container_cache_max_capacity = 50
 
 #Global Variables
 _S3Connector = S3Connector()
 _MysqlConnector = Connector()
 _BlockIndex = BlockIndex(_MysqlConnector, 'BLOCK_INDEX')
+_container_cache = ContainerCache(container_cache_max_capacity)

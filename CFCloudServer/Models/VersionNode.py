@@ -22,10 +22,7 @@ class VersionNode(object):
     def add_vitrual_block(self, block):
         self.blocks.append(block)
 
-    def read_data(self):
-        ret = b''
-        for block in self.blocks:
-            ret += block.read_data()
-        return ret
+    def read_data(self, block_index):
+        return self.blocks[block_index].read_data()
 
 

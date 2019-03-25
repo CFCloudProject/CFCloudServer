@@ -1,1 +1,1 @@
-__all__ = ["BIDConnector"]
+__all__ = ["Connector", "BlockIndex"]

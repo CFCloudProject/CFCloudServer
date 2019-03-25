@@ -8,4 +8,7 @@ class VersionVector(object):
         self.version += 1
         self.vector.append(vnode)
 
+    def read_data(self, version, block_index)
+        return self.vector[version].read_data(block_index)
+
 

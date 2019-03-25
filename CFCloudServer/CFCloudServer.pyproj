@@ -4,7 +4,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3427e958-c2d5-40fa-b33b-a4f463eec2ef</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Start.py</StartupFile>
+    <StartupFile>
+    </StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -21,22 +22,16 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="AmazonS3Connector\Config.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AmazonS3Connector\S3Connector.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AmazonS3Connector\__init__.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Cache\LRUCache.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Cache\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Global.py" />
+    <Compile Include="MysqlConnector\BlockIndex.py" />
     <Compile Include="OT\diff_match_patch.py" />
+    <Compile Include="S3Connector.py" />
     <Compile Include="Start.py">
       <SubType>Code</SubType>
     </Compile>
@@ -75,12 +70,6 @@
     <Compile Include="Models\__init__.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MysqlConnector\BIDConnector.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="MysqlConnector\Config.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="MysqlConnector\Connector.py">
       <SubType>Code</SubType>
     </Compile>
@@ -96,7 +85,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="AmazonS3Connector\" />
     <Folder Include="Cache\" />
     <Folder Include="GRPCServer\" />
     <Folder Include="Models\" />

@@ -1,6 +1,6 @@
-import Global
-import Block
 import six
+import Global
+from . import Block
 
 class Container(object):
 
@@ -59,14 +59,14 @@ class Container(object):
                 fragment.size -= size
                 self.add_fragment(fragment)
             self.dirty = True
-            return Block(block_id, self.id, offset, size - 22)
+            return Block.Block(block_id, self.id, offset, size - 22)
         else:
             offset = len(self.data)
             if offset + size > Global.container_max_size:
                 return None
             self.data = self.data + data_to_write
             self.dirty = True
-            return Block(block_id, self.id, offset, size - 22)
+            return Block.Block(block_id, self.id, offset, size - 22)
 
     def delete_block(self, block):
         if block.container_id != self.id:
@@ -109,7 +109,7 @@ class Container(object):
             block_id = self.data[offset : offset + 20].hex()
             size = self.data[offset + 20 : offset + 22]
             size = size[0] * 256 + size[1]
-            Global._BlockIndex.update(Block(block_id, self.id, offset, size))
+            Global._BlockIndex.update(Block.Block(block_id, self.id, offset, size))
             offset += size + 22
 
     def add_fragment(self, fragment):
@@ -143,7 +143,7 @@ class Container(object):
         quick_sort(self.fragments, 0, len(self.fragments) - 1)
 
 
-class Fragment(Object):
+class Fragment(object):
 
     def __init__(self, offset, size):
         self.offset = offset

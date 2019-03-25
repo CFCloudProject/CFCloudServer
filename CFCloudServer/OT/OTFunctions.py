@@ -1,10 +1,13 @@
 import diff_match_patch
 import re
+import six
+from Operation import *
 
 # operation generation
+# old & new must be bytes
 def GenerateOpList(old, new):
     dmp = diff_match_patch.diff_match_patch()
-    diffs = dmp.diff_main(old, new)
+    diffs = dmp.diff_main(old.hex(), new.hex())
     dmp.diff_cleanupEfficiency(diffs)
     index = 0
     ret = []
@@ -109,13 +112,37 @@ def TransformOpListvsOpList(l1, l2):
     return l1
 
 # execute operation
+# b must be bytes
 def ExecuteOp(b, o):
+    s = b.hex()
     if o.type == 'i':
-        return b[:o.index] + o.data + b[o.index:len(b)]
+        ret = s[:o.index] + o.data + s[o.index:len(s)]
     else:
-        return b[:o.index] + b[o.index + o.data:len(b)]
+        ret = s[:o.index] + s[o.index + o.data:len(s)]
+    return bytes.fromhex(ret)
 
+# b must be bytes
 def ExecuteOpList(b, l):
     for o in l:
         b = ExecuteOp(b, o)
     return b
+
+# convert between oplist and bytes
+def oplist2bytes(l):
+    ret = b''
+    for op in l:
+        b_op = op.op2bytes()
+        len = len(b_op)
+        ret += six.int2byte(int(len / 256)) + six.int2byte(len % 256) + b_op
+    return ret
+
+def bytes2oplist(b):
+    pos = 0
+    len = len(b)
+    oplist = []
+    while pos < len:
+        op_len = b[pos] * 256 + b[pos + 1]
+        pos += 2
+        oplist.append(bytes2op(b[pos : pos + op_len]))
+        pos += op_len
+    return oplist

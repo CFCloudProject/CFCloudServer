@@ -1,16 +1,28 @@
+import Global
+from OT import OTFunctions
+
 class VitrualBlock(object):
     
-    def __init__(self, base=None, op=None, current=None, sha256=None, md5=None):
-        self.base = base
-        self.op = op
-        self.current = current
-        self.sha256 = sha256
-        self.md5 = md5
+    def __init__(self, base_index = None, op_index = None, current_index = None, hash = None):
+        self.base_index = base_index
+        self.op_index = op_index
+        self.current_index = current_index
+        self.hash = hash
 
     def read_data(self):
-        if self.current is not None:
-            pass
+        if self.current_index is not None:
+            block = Global._BlockIndex.select(self.current_index)
+            if block is None:
+                return None
+            return Global._container_cache.read_block(block)
         else:
-            pass
-
-
+            base_block = Global._BlockIndex.select(self.base_index)
+            if base_block is None:
+                return None
+            op_block = Global._BlockIndex.select(self.op_index)
+            if op_block is None:
+                return None
+            base = Global._container_cache.read_block(base_block)
+            op = Global._container_cache.read_block(op_block)
+            oplist = bytes2oplist(op)
+            return ExecuteOpList(base, oplist)

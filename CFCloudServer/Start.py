@@ -8,7 +8,7 @@ _one_day_in_seconds = 24 * 60 * 60
 
 def server_start():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers = 10))
-    GRPCServer_pb2_grpc.add_GRPCServerServicer_to_server(GRPCServerImpl(), server)
+    GRPCServer_pb2_grpc.add_GRPCServerServicer_to_server(GRPCServerImpl.GRPCServerImpl(), server)
     server.add_insecure_port('0.0.0.0:' + _port)
     server.start()
     try:

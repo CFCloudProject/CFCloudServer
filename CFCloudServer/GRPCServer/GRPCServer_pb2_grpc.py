@@ -84,21 +84,6 @@ class GRPCServerStub(object):
         request_serializer=GRPCServer__pb2.PathRequest.SerializeToString,
         response_deserializer=GRPCServer__pb2.StringResponse.FromString,
         )
-    self.GetToken = channel.unary_unary(
-        '/GRPCServer.GRPCServer/GetToken',
-        request_serializer=GRPCServer__pb2.PathRevRequest.SerializeToString,
-        response_deserializer=GRPCServer__pb2.GetTokenResult.FromString,
-        )
-    self.ReturnToken = channel.unary_unary(
-        '/GRPCServer.GRPCServer/ReturnToken',
-        request_serializer=GRPCServer__pb2.PathRequest.SerializeToString,
-        response_deserializer=GRPCServer__pb2.StringResponse.FromString,
-        )
-    self.CanModifyFolder = channel.unary_unary(
-        '/GRPCServer.GRPCServer/CanModifyFolder',
-        request_serializer=GRPCServer__pb2.PathRequest.SerializeToString,
-        response_deserializer=GRPCServer__pb2.StringResponse.FromString,
-        )
 
 
 class GRPCServerServicer(object):
@@ -203,27 +188,6 @@ class GRPCServerServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
-  def GetToken(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
-    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-    context.set_details('Method not implemented!')
-    raise NotImplementedError('Method not implemented!')
-
-  def ReturnToken(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
-    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-    context.set_details('Method not implemented!')
-    raise NotImplementedError('Method not implemented!')
-
-  def CanModifyFolder(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
-    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-    context.set_details('Method not implemented!')
-    raise NotImplementedError('Method not implemented!')
-
 
 def add_GRPCServerServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -294,21 +258,6 @@ def add_GRPCServerServicer_to_server(servicer, server):
       ),
       'ListFolder': grpc.unary_unary_rpc_method_handler(
           servicer.ListFolder,
-          request_deserializer=GRPCServer__pb2.PathRequest.FromString,
-          response_serializer=GRPCServer__pb2.StringResponse.SerializeToString,
-      ),
-      'GetToken': grpc.unary_unary_rpc_method_handler(
-          servicer.GetToken,
-          request_deserializer=GRPCServer__pb2.PathRevRequest.FromString,
-          response_serializer=GRPCServer__pb2.GetTokenResult.SerializeToString,
-      ),
-      'ReturnToken': grpc.unary_unary_rpc_method_handler(
-          servicer.ReturnToken,
-          request_deserializer=GRPCServer__pb2.PathRequest.FromString,
-          response_serializer=GRPCServer__pb2.StringResponse.SerializeToString,
-      ),
-      'CanModifyFolder': grpc.unary_unary_rpc_method_handler(
-          servicer.CanModifyFolder,
           request_deserializer=GRPCServer__pb2.PathRequest.FromString,
           response_serializer=GRPCServer__pb2.StringResponse.SerializeToString,
       ),

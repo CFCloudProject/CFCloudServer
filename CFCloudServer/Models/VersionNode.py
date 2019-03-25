@@ -1,6 +1,6 @@
 class VersionNode(object):
     
-    def __init__(self, ver=None, modifier=None, modified_time=None, size=None):
+    def __init__(self, ver = None, modifier = None, modified_time = None, size = None):
         self.ver = ver
         self.modifier = modifier
         self.modified_time = modified_time

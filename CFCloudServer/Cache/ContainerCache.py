@@ -44,7 +44,7 @@ class ccnode(object):
         self.empty = False
 
 
-class ContainerCache(Object):
+class ContainerCache(object):
 
     def __init__(self, max_cache):
         self.max = max_cache

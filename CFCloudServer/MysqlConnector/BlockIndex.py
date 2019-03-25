@@ -1,6 +1,5 @@
-import Connector
 import mysql
-from Models import Block
+from Models.Block import Block
 
 class BlockIndex():
 
@@ -61,4 +60,3 @@ class BlockIndex():
            return Block(ret[0], ret[1], ret[2], ret[3])
         except:
            return None
-

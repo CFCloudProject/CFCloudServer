@@ -1,9 +1,9 @@
 import sys
 import json
 import math
-import GRPCServer_pb2 
+import Global
+import GRPCServer_pb2
 import GRPCServer_pb2_grpc
-from MysqlConnector import BIDConnector
 
 
 class GRPCServerImpl(GRPCServer_pb2_grpc.GRPCServerServicer):
@@ -27,7 +27,6 @@ class GRPCServerImpl(GRPCServer_pb2_grpc.GRPCServerServicer):
         db_password = info[0]
         user_id = info[1]
         if(db_password==None):
-            # 记录一个user id, 每次login都会从shadow中返回
             return GRPCServer_pb2.LoginResult(Succeed  = False, Error = 1, SessionId = None,
                                          Email = None, Password = None, FirstName = None,
                                          LastName = None)
@@ -78,7 +77,6 @@ class GRPCServerImpl(GRPCServer_pb2_grpc.GRPCServerServicer):
             metadata.writeMetadata(path)
         version_num = metadata.vv.version + 1
         if(basefile == None):
-            # blockInfo 原来是我定义的一个类，师兄可以去掉
             jstr = json.dumps(blockInfo(version_num,[]))
             return GRPCServer_pb2.StringResponse(PayLoad = jstr)
         else:
@@ -94,18 +92,14 @@ class GRPCServerImpl(GRPCServer_pb2_grpc.GRPCServerServicer):
         path = request_iterator.path
         while(1):
             size = request_iterator.size  
-            # 获取container, 但注意recAddNode中还没有加对container是否在本地的检查
             container, containid, unitid = recAddNode(root, path, 0, size)
-            # 真正写入container
             bid = container.writeContainer(unitid, request_iterator.data, size)
-            # bid 存入数据库
             block = Block(bid, containid, unitid, math.ceil(size/UNITSIZE), size)
             insert(block)
             vblockList.append(block)
             yield model_pb2.file_Response(data = block)
         # wait for further 
         vnode = VersionNode(request_iterator.verNum, vblockList)
-        # 再用path读取一遍metadata 拿出metadata.vv？append(vnode)
         #return super().UploadBlock(request_iterator, context)
 
     def Download(self, request, context):
@@ -119,12 +113,3 @@ class GRPCServerImpl(GRPCServer_pb2_grpc.GRPCServerServicer):
 
     def ListFolder(self, request, context):
         return super().ListFolder(request, context)
-
-    def GetToken(self, request, context):
-        return super().GetToken(request, context)
-
-    def ReturnToken(self, request, context):
-        return super().ReturnToken(request, context)
-
-    def CanModifyFolder(self, request, context):
-        return super().CanModifyFolder(request, context)

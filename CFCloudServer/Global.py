@@ -29,7 +29,7 @@ def get_new_container_id():
 container_cache_max_capacity = 50
 
 #Global Variables
-_S3Connector = S3Connector()
-_MysqlConnector = Connector()
-_BlockIndex = BlockIndex(_MysqlConnector, 'BLOCK_INDEX')
-_container_cache = ContainerCache(container_cache_max_capacity)
+_S3Connector = S3Connector.S3Connector()
+_MysqlConnector = Connector.Connector()
+_BlockIndex = BlockIndex.BlockIndex(_MysqlConnector, 'BLOCK_INDEX')
+_container_cache = ContainerCache.ContainerCache(container_cache_max_capacity)

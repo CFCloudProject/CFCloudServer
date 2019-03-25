@@ -4,8 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3427e958-c2d5-40fa-b33b-a4f463eec2ef</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>
-    </StartupFile>
+    <StartupFile>Start.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -29,6 +28,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Global.py" />
+    <Compile Include="GRPCServer\GRPCServer_pb2.py" />
+    <Compile Include="GRPCServer\GRPCServer_pb2_grpc.py" />
     <Compile Include="MysqlConnector\BlockIndex.py" />
     <Compile Include="OT\diff_match_patch.py" />
     <Compile Include="S3Connector.py" />
@@ -38,8 +39,6 @@
     <Compile Include="GRPCServer\GRPCServerImpl.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="GRPCServer\GRPCServer_pb2.py" />
-    <Compile Include="GRPCServer\GRPCServer_pb2_grpc.py" />
     <Compile Include="GRPCServer\__init__.py">
       <SubType>Code</SubType>
     </Compile>

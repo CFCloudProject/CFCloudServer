@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='GRPCServer',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x10GRPCServer.proto\x12\nGRPCServer\"L\n\x04User\x12\r\n\x05\x45mail\x18\x01 \x01(\t\x12\x10\n\x08Password\x18\x02 \x01(\t\x12\x11\n\tFirstName\x18\x03 \x01(\t\x12\x10\n\x08LastName\x18\x04 \x01(\t\"0\n\x0eRegisterResult\x12\x0f\n\x07Succeed\x18\x01 \x01(\x08\x12\r\n\x05\x45rror\x18\x02 \x01(\x05\"e\n\x0bLoginResult\x12\x0f\n\x07Succeed\x18\x01 \x01(\x08\x12\x11\n\tSessionId\x18\x02 \x01(\t\x12\x11\n\tFirstName\x18\x03 \x01(\t\x12\x10\n\x08LastName\x18\x04 \x01(\t\x12\r\n\x05\x45rror\x18\x05 \x01(\x05\"!\n\x0c\x45mptyRequest\x12\x11\n\tSessionId\x18\x01 \x01(\t\".\n\x0bPathRequest\x12\x11\n\tSessionId\x18\x01 \x01(\t\x12\x0c\n\x04Path\x18\x02 \x01(\t\"A\n\rRenameRequest\x12\x11\n\tSessionId\x18\x01 \x01(\t\x12\x0c\n\x04Path\x18\x02 \x01(\t\x12\x0f\n\x07OldPath\x18\x03 \x01(\t\"<\n\x0cShareRequest\x12\x11\n\tSessionId\x18\x01 \x01(\t\x12\x0c\n\x04Path\x18\x02 \x01(\t\x12\x0b\n\x03\x44st\x18\x03 \x01(\t\"e\n\rUploadRequest\x12\x11\n\tSessionId\x18\x01 \x01(\t\x12\x0c\n\x04Path\x18\x02 \x01(\t\x12\x0f\n\x07\x42\x61seRev\x18\x03 \x01(\t\x12\x14\n\x0cModifiedTime\x18\x04 \x01(\x03\x12\x0c\n\x04Size\x18\x05 \x01(\x03\"B\n\x0ePathRevRequest\x12\x11\n\tSessionId\x18\x01 \x01(\t\x12\x0c\n\x04Path\x18\x02 \x01(\t\x12\x0f\n\x07\x42\x61seRev\x18\x03 \x01(\t\"\xb0\x01\n\x0c\x42lockRequest\x12\x11\n\tSessionId\x18\x01 \x01(\t\x12\x0c\n\x04Path\x18\x02 \x01(\t\x12\x0f\n\x07\x42\x61seRev\x18\x03 \x01(\t\x12\x0b\n\x03Rev\x18\x04 \x01(\t\x12\x11\n\tBaseIndex\x18\x05 \x01(\t\x12\r\n\x05Index\x18\x06 \x01(\x05\x12\x11\n\tConfident\x18\x07 \x01(\x08\x12\x0e\n\x06SHA256\x18\x08 \x01(\t\x12\x0b\n\x03MD5\x18\t \x01(\t\x12\x0f\n\x07\x43ontent\x18\n \x01(\x0c\"i\n\rBlockResponse\x12\x0c\n\x04Path\x18\x01 \x01(\t\x12\x0b\n\x03Rev\x18\x02 \x01(\t\x12\x12\n\nBlockIndex\x18\x03 \x01(\x05\x12\x0b\n\x03SHA\x18\x04 \x01(\t\x12\x0b\n\x03MD5\x18\x05 \x01(\t\x12\x0f\n\x07\x43ontent\x18\x06 \x01(\x0c\"!\n\x0eStringResponse\x12\x0f\n\x07PayLoad\x18\x01 \x01(\t\"v\n\x0eGetTokenResult\x12\x0f\n\x07Succeed\x18\x01 \x01(\x08\x12\x10\n\x08\x46ileName\x18\x02 \x01(\t\x12\r\n\x05\x45mail\x18\x03 \x01(\t\x12\x11\n\tFirstName\x18\x04 \x01(\t\x12\x10\n\x08LastName\x18\x05 \x01(\t\x12\r\n\x05\x45rror\x18\x06 \x01(\x05\x32\x8d\t\n\nGRPCServer\x12:\n\x08Register\x12\x10.GRPCServer.User\x1a\x1a.GRPCServer.RegisterResult\"\x00\x12\x34\n\x05Login\x12\x10.GRPCServer.User\x1a\x17.GRPCServer.LoginResult\"\x00\x12@\n\x06Logout\x12\x18.GRPCServer.EmptyRequest\x1a\x1a.GRPCServer.StringResponse\"\x00\x12\x43\n\tHeartBeat\x12\x18.GRPCServer.EmptyRequest\x1a\x1a.GRPCServer.StringResponse\"\x00\x12?\n\x05Share\x12\x18.GRPCServer.ShareRequest\x1a\x1a.GRPCServer.StringResponse\"\x00\x12\x45\n\x0c\x43reateFolder\x12\x17.GRPCServer.PathRequest\x1a\x1a.GRPCServer.StringResponse\"\x00\x12\x41\n\x06Rename\x12\x19.GRPCServer.RenameRequest\x1a\x1a.GRPCServer.StringResponse\"\x00\x12?\n\x06\x44\x65lete\x12\x17.GRPCServer.PathRequest\x1a\x1a.GRPCServer.StringResponse\"\x00\x12\x41\n\x06Upload\x12\x19.GRPCServer.UploadRequest\x1a\x1a.GRPCServer.StringResponse\"\x00\x12G\n\x0bUploadBlock\x12\x18.GRPCServer.BlockRequest\x1a\x1a.GRPCServer.StringResponse\"\x00(\x01\x12\x41\n\x08\x44ownload\x12\x17.GRPCServer.PathRequest\x1a\x1a.GRPCServer.StringResponse\"\x00\x12J\n\rDownloadBlock\x12\x18.GRPCServer.BlockRequest\x1a\x19.GRPCServer.BlockResponse\"\x00(\x01\x30\x01\x12\x44\n\x0bGetMetadata\x12\x17.GRPCServer.PathRequest\x1a\x1a.GRPCServer.StringResponse\"\x00\x12\x43\n\nListFolder\x12\x17.GRPCServer.PathRequest\x1a\x1a.GRPCServer.StringResponse\"\x00\x12\x44\n\x08GetToken\x12\x1a.GRPCServer.PathRevRequest\x1a\x1a.GRPCServer.GetTokenResult\"\x00\x12\x44\n\x0bReturnToken\x12\x17.GRPCServer.PathRequest\x1a\x1a.GRPCServer.StringResponse\"\x00\x12H\n\x0f\x43\x61nModifyFolder\x12\x17.GRPCServer.PathRequest\x1a\x1a.GRPCServer.StringResponse\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x10GRPCServer.proto\x12\nGRPCServer\"L\n\x04User\x12\r\n\x05\x45mail\x18\x01 \x01(\t\x12\x10\n\x08Password\x18\x02 \x01(\t\x12\x11\n\tFirstName\x18\x03 \x01(\t\x12\x10\n\x08LastName\x18\x04 \x01(\t\"0\n\x0eRegisterResult\x12\x0f\n\x07Succeed\x18\x01 \x01(\x08\x12\r\n\x05\x45rror\x18\x02 \x01(\x05\"e\n\x0bLoginResult\x12\x0f\n\x07Succeed\x18\x01 \x01(\x08\x12\x11\n\tSessionId\x18\x02 \x01(\t\x12\x11\n\tFirstName\x18\x03 \x01(\t\x12\x10\n\x08LastName\x18\x04 \x01(\t\x12\r\n\x05\x45rror\x18\x05 \x01(\x05\"!\n\x0c\x45mptyRequest\x12\x11\n\tSessionId\x18\x01 \x01(\t\".\n\x0bPathRequest\x12\x11\n\tSessionId\x18\x01 \x01(\t\x12\x0c\n\x04Path\x18\x02 \x01(\t\"A\n\rRenameRequest\x12\x11\n\tSessionId\x18\x01 \x01(\t\x12\x0c\n\x04Path\x18\x02 \x01(\t\x12\x0f\n\x07OldPath\x18\x03 \x01(\t\"<\n\x0cShareRequest\x12\x11\n\tSessionId\x18\x01 \x01(\t\x12\x0c\n\x04Path\x18\x02 \x01(\t\x12\x0b\n\x03\x44st\x18\x03 \x01(\t\"e\n\rUploadRequest\x12\x11\n\tSessionId\x18\x01 \x01(\t\x12\x0c\n\x04Path\x18\x02 \x01(\t\x12\x0f\n\x07\x42\x61seRev\x18\x03 \x01(\t\x12\x14\n\x0cModifiedTime\x18\x04 \x01(\x03\x12\x0c\n\x04Size\x18\x05 \x01(\x03\"B\n\x0ePathRevRequest\x12\x11\n\tSessionId\x18\x01 \x01(\t\x12\x0c\n\x04Path\x18\x02 \x01(\t\x12\x0f\n\x07\x42\x61seRev\x18\x03 \x01(\t\"\xa1\x01\n\x0c\x42lockRequest\x12\x11\n\tSessionId\x18\x01 \x01(\t\x12\x0c\n\x04Path\x18\x02 \x01(\t\x12\x0f\n\x07\x42\x61seRev\x18\x03 \x01(\t\x12\x0b\n\x03Rev\x18\x04 \x01(\t\x12\x11\n\tBaseIndex\x18\x05 \x01(\t\x12\r\n\x05Index\x18\x06 \x01(\x05\x12\x11\n\tConfident\x18\x07 \x01(\x08\x12\x0c\n\x04Hash\x18\x08 \x01(\t\x12\x0f\n\x07\x43ontent\x18\t \x01(\x0c\"]\n\rBlockResponse\x12\x0c\n\x04Path\x18\x01 \x01(\t\x12\x0b\n\x03Rev\x18\x02 \x01(\t\x12\x12\n\nBlockIndex\x18\x03 \x01(\x05\x12\x0c\n\x04Hash\x18\x04 \x01(\t\x12\x0f\n\x07\x43ontent\x18\x05 \x01(\x0c\"!\n\x0eStringResponse\x12\x0f\n\x07PayLoad\x18\x01 \x01(\t2\xb7\x07\n\nGRPCServer\x12:\n\x08Register\x12\x10.GRPCServer.User\x1a\x1a.GRPCServer.RegisterResult\"\x00\x12\x34\n\x05Login\x12\x10.GRPCServer.User\x1a\x17.GRPCServer.LoginResult\"\x00\x12@\n\x06Logout\x12\x18.GRPCServer.EmptyRequest\x1a\x1a.GRPCServer.StringResponse\"\x00\x12\x43\n\tHeartBeat\x12\x18.GRPCServer.EmptyRequest\x1a\x1a.GRPCServer.StringResponse\"\x00\x12?\n\x05Share\x12\x18.GRPCServer.ShareRequest\x1a\x1a.GRPCServer.StringResponse\"\x00\x12\x45\n\x0c\x43reateFolder\x12\x17.GRPCServer.PathRequest\x1a\x1a.GRPCServer.StringResponse\"\x00\x12\x41\n\x06Rename\x12\x19.GRPCServer.RenameRequest\x1a\x1a.GRPCServer.StringResponse\"\x00\x12?\n\x06\x44\x65lete\x12\x17.GRPCServer.PathRequest\x1a\x1a.GRPCServer.StringResponse\"\x00\x12\x41\n\x06Upload\x12\x19.GRPCServer.UploadRequest\x1a\x1a.GRPCServer.StringResponse\"\x00\x12G\n\x0bUploadBlock\x12\x18.GRPCServer.BlockRequest\x1a\x1a.GRPCServer.StringResponse\"\x00(\x01\x12\x41\n\x08\x44ownload\x12\x17.GRPCServer.PathRequest\x1a\x1a.GRPCServer.StringResponse\"\x00\x12J\n\rDownloadBlock\x12\x18.GRPCServer.BlockRequest\x1a\x19.GRPCServer.BlockResponse\"\x00(\x01\x30\x01\x12\x44\n\x0bGetMetadata\x12\x17.GRPCServer.PathRequest\x1a\x1a.GRPCServer.StringResponse\"\x00\x12\x43\n\nListFolder\x12\x17.GRPCServer.PathRequest\x1a\x1a.GRPCServer.StringResponse\"\x00\x62\x06proto3')
 )
 
 
@@ -494,22 +494,15 @@ _BLOCKREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='SHA256', full_name='GRPCServer.BlockRequest.SHA256', index=7,
+      name='Hash', full_name='GRPCServer.BlockRequest.Hash', index=7,
       number=8, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='MD5', full_name='GRPCServer.BlockRequest.MD5', index=8,
-      number=9, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='Content', full_name='GRPCServer.BlockRequest.Content', index=9,
-      number=10, type=12, cpp_type=9, label=1,
+      name='Content', full_name='GRPCServer.BlockRequest.Content', index=8,
+      number=9, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -527,7 +520,7 @@ _BLOCKREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=647,
-  serialized_end=823,
+  serialized_end=808,
 )
 
 
@@ -560,22 +553,15 @@ _BLOCKRESPONSE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='SHA', full_name='GRPCServer.BlockResponse.SHA', index=3,
+      name='Hash', full_name='GRPCServer.BlockResponse.Hash', index=3,
       number=4, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='MD5', full_name='GRPCServer.BlockResponse.MD5', index=4,
-      number=5, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='Content', full_name='GRPCServer.BlockResponse.Content', index=5,
-      number=6, type=12, cpp_type=9, label=1,
+      name='Content', full_name='GRPCServer.BlockResponse.Content', index=4,
+      number=5, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -592,8 +578,8 @@ _BLOCKRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=825,
-  serialized_end=930,
+  serialized_start=810,
+  serialized_end=903,
 )
 
 
@@ -623,74 +609,8 @@ _STRINGRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=932,
-  serialized_end=965,
-)
-
-
-_GETTOKENRESULT = _descriptor.Descriptor(
-  name='GetTokenResult',
-  full_name='GRPCServer.GetTokenResult',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='Succeed', full_name='GRPCServer.GetTokenResult.Succeed', index=0,
-      number=1, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='FileName', full_name='GRPCServer.GetTokenResult.FileName', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='Email', full_name='GRPCServer.GetTokenResult.Email', index=2,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='FirstName', full_name='GRPCServer.GetTokenResult.FirstName', index=3,
-      number=4, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='LastName', full_name='GRPCServer.GetTokenResult.LastName', index=4,
-      number=5, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='Error', full_name='GRPCServer.GetTokenResult.Error', index=5,
-      number=6, type=5, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=967,
-  serialized_end=1085,
+  serialized_start=905,
+  serialized_end=938,
 )
 
 DESCRIPTOR.message_types_by_name['User'] = _USER
@@ -705,7 +625,6 @@ DESCRIPTOR.message_types_by_name['PathRevRequest'] = _PATHREVREQUEST
 DESCRIPTOR.message_types_by_name['BlockRequest'] = _BLOCKREQUEST
 DESCRIPTOR.message_types_by_name['BlockResponse'] = _BLOCKRESPONSE
 DESCRIPTOR.message_types_by_name['StringResponse'] = _STRINGRESPONSE
-DESCRIPTOR.message_types_by_name['GetTokenResult'] = _GETTOKENRESULT
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 User = _reflection.GeneratedProtocolMessageType('User', (_message.Message,), dict(
@@ -792,13 +711,6 @@ StringResponse = _reflection.GeneratedProtocolMessageType('StringResponse', (_me
   ))
 _sym_db.RegisterMessage(StringResponse)
 
-GetTokenResult = _reflection.GeneratedProtocolMessageType('GetTokenResult', (_message.Message,), dict(
-  DESCRIPTOR = _GETTOKENRESULT,
-  __module__ = 'GRPCServer_pb2'
-  # @@protoc_insertion_point(class_scope:GRPCServer.GetTokenResult)
-  ))
-_sym_db.RegisterMessage(GetTokenResult)
-
 
 
 _GRPCSERVER = _descriptor.ServiceDescriptor(
@@ -807,8 +719,8 @@ _GRPCSERVER = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=1088,
-  serialized_end=2253,
+  serialized_start=941,
+  serialized_end=1892,
   methods=[
   _descriptor.MethodDescriptor(
     name='Register',
@@ -931,33 +843,6 @@ _GRPCSERVER = _descriptor.ServiceDescriptor(
     name='ListFolder',
     full_name='GRPCServer.GRPCServer.ListFolder',
     index=13,
-    containing_service=None,
-    input_type=_PATHREQUEST,
-    output_type=_STRINGRESPONSE,
-    serialized_options=None,
-  ),
-  _descriptor.MethodDescriptor(
-    name='GetToken',
-    full_name='GRPCServer.GRPCServer.GetToken',
-    index=14,
-    containing_service=None,
-    input_type=_PATHREVREQUEST,
-    output_type=_GETTOKENRESULT,
-    serialized_options=None,
-  ),
-  _descriptor.MethodDescriptor(
-    name='ReturnToken',
-    full_name='GRPCServer.GRPCServer.ReturnToken',
-    index=15,
-    containing_service=None,
-    input_type=_PATHREQUEST,
-    output_type=_STRINGRESPONSE,
-    serialized_options=None,
-  ),
-  _descriptor.MethodDescriptor(
-    name='CanModifyFolder',
-    full_name='GRPCServer.GRPCServer.CanModifyFolder',
-    index=16,
     containing_service=None,
     input_type=_PATHREQUEST,
     output_type=_STRINGRESPONSE,

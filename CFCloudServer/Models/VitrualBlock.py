@@ -1,3 +1,4 @@
+import threading
 import Global
 from OT import OTFunctions
 
@@ -8,8 +9,16 @@ class VitrualBlock(object):
         self.op = op
         self.current = current
         self.hash = hash
+        self.lock = threading.RLock()
+
+    def get_hash(self):
+        self.lock.acquire()
+        hash = self.hash
+        self.lock.release()
+        return hash
 
     def read_data(self):
+        self.lock.acquire()
         if self.current is not None:
             block = Global._BlockIndex.select(self.current)
             if block is None:
@@ -24,10 +33,13 @@ class VitrualBlock(object):
             else:
                 o = Global._container_cache.read_block(op_block)
                 o = bytes2oplist(o)
+        b = self.base
+        self.lock.release()
         #return base_index, oplist, current_data
-        return self.base, o, c
+        return b, o, c
 
     def to_dict(self):
+        self.lock.acquire()
         dict = {}
         if self.base is not None:
             dict['base'] = self.base
@@ -35,7 +47,9 @@ class VitrualBlock(object):
             dict['op'] = self.op
         if self.current is not None:
             dict['current'] = self.current
-        dict['hash'] = self.hash
+        if self.hash is not None:
+            dict['hash'] = self.hash
+        self.lock.release()
         return dict
 
 def from_dict(dict):

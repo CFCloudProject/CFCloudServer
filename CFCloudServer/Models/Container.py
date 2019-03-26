@@ -1,4 +1,5 @@
 import six
+import threading
 import Global
 from . import Block
 
@@ -12,43 +13,56 @@ class Container(object):
             self.dirty = False
         else:
             self.id = container_id
+        self.lock = threading.RLock()
 
     def IsDirty(self):
-        return self.dirty
+        self.lock.acquire()
+        dirty = self.dirty
+        self.lock.release()
+        return ditry
 
     def write_back(self):
+        self.lock.acquire()
         key = 'Container_' + str(self.id)
         if not self.dirty:
-            return True
+            result = True
         else:
             ret = Global._S3Connector.upload(key, self.data)
             if ret:
                 self.dirty = False
-                return True
+                result = True
             else:
-                return False
+                result = False
+        self.lock.release()
+        return result
 
     def read_block(self, block):
+        self.lock.acquire()
         if block.container_id != self.id:
+            self.lock.release()
             return None
         offset = block.offset
         if self.data[offset : offset + 20].hex() != block.block_id:
+            self.lock.release()
             return None
         offset += 20
         size = self.data[offset : offset + 2]
         size = size[0] * 256 + size[1]
         if size != block.size:
+            self.lock.release()
             return None
         offset += 2
+        self.lock.release()
         return self.data[offset : offset + size]
 
     def write_block(self, block_id, data):
+        self.lock.acquire()
         data_head = bytes.fromhex(block_id)
         size = len(data)
         data_size = six.int2byte(int(size / 256)) + six.int2byte(size % 256)
         data_to_write = data_head + data_size + data
         size += 22
-        index = self.binary_search_in_fragments(size)
+        index = self.__binary_search_in_fragments(size)
         if index is not None:
             fragment = self.fragments[index]
             self.fragments.remove(fragment)
@@ -57,42 +71,50 @@ class Container(object):
             if fragment.size > size:
                 fragment.offset += size
                 fragment.size -= size
-                self.add_fragment(fragment)
+                self.__add_fragment(fragment)
             self.dirty = True
+            self.lock.release()
             return Block.Block(block_id, self.id, offset, size - 22)
         else:
             offset = len(self.data)
             if offset + size > Global.container_max_size:
+                self.lock.release()
                 return None
             self.data = self.data + data_to_write
             self.dirty = True
+            self.lock.release()
             return Block.Block(block_id, self.id, offset, size - 22)
 
     def delete_block(self, block):
+        self.lock.acquire()
         if block.container_id != self.id:
+            self.lock.release()
             return False
         offset = block.offset
         if self.data[offset : offset + 20].hex() != block.block_id:
+            self.lock.release()
             return False
         offset += 20
         size = self.data[offset : offset + 2]
         size = size[0] * 256 + size[1]
         if size != block.size:
+            self.lock.release()
             return False
         fragment = Fragment(block.offset, block.size + 22)
-        self.add_fragment(fragment)
+        self.__add_fragment(fragment)
         fragments_size = 0
         for f in self.fragments:
             fragments_size += f.size
         if fragments_size * 2 > Global.container_max_size:
-            self.defrag()
+            self.__defrag()
         else:
             self.data = self.data[0 : fragment.offset] + b'\x00' * fragment.size + self.data[fragment.offset + fragment.size : len(self.data)]
         self.dirty = True
+        self.lock.release()
         return True
 
-    def defrag(self):
-        self.quick_sort_fragments_by_offset()
+    def __defrag(self):
+        self.__quick_sort_fragments_by_offset()
         split = [0]
         for fragment in self.fragments:
             split.append(fragment.offset)
@@ -112,14 +134,14 @@ class Container(object):
             Global._BlockIndex.update(Block.Block(block_id, self.id, offset, size))
             offset += size + 22
 
-    def add_fragment(self, fragment):
-        index = self.binary_search_in_fragments(fragment.size)
+    def __add_fragment(self, fragment):
+        index = self.__binary_search_in_fragments(fragment.size)
         if index is None:
             self.fragments.append(fragment)
         else:
             self.fragments.insert(index, fragment)
 
-    def binary_search_in_fragments(self, size):
+    def __binary_search_in_fragments(self, size):
         left = 0
         right = len(self.fragments) - 1
         if right < left:
@@ -139,7 +161,7 @@ class Container(object):
         else:
             return left
 
-    def quick_sort_fragments_by_offset(self):
+    def __quick_sort_fragments_by_offset(self):
         quick_sort(self.fragments, 0, len(self.fragments) - 1)
 
 

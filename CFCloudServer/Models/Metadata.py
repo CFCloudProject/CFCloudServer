@@ -1,6 +1,7 @@
 import pickle
 import os
 import json
+import threading
 from . import VersionVector, User
 
 class Metadata(object):
@@ -18,15 +19,22 @@ class Metadata(object):
         self.is_shared = is_shared
         self.sharedusers = sharedusers
         if versions is None:
-            self.versions = VersionVector.VersionVector()
+            if self.tag == 'File':
+                self.versions = VersionVector.VersionVector()
+            else:
+                self.versions = None
         else:
             self.versions = versions
+        self.lock = threading.RLock()
 
     def share(self, user):
+        self.lock.acquire()
         self.is_shared = True
         self.sharedusers.append(user)
+        self.lock.release()
 
     def to_dict_except_versions(self):
+        self.lock.acquire()
         dict = {}
         dict['tag'] = self.tag                          # string
         dict['name'] = self.name                        # string
@@ -43,21 +51,29 @@ class Metadata(object):
             shared_users.append(user.__dict__)
         dict['sharedusers'] = shared_users              # [User]
         # no need to send VersionVector to user
+        self.lock.release()
         return dict
 
     def to_dict(self):
+        self.lock.acquire()
         dict = self.to_dict_except_versions()
-        dict['versions'] = self.versions.to_dict()
+        if self.versions is not None:
+            dict['versions'] = self.versions.to_dict()
+        self.lock.release()
         return dict
 
     def to_json_string(self):
+        self.lock.acquire()
         dict = self.to_dict_except_versions()
+        self.lock.release()
         return json.dumps(dict)
 
     def to_metadata_file(self, file):
+        self.lock.acquire()
         fp = open(filepath, 'wb')
         pickle.dump(self.to_dict(), fp)
         fp.close()
+        self.lock.release()
 
 def from_dict(dict):
     tag = dict.get('tag')

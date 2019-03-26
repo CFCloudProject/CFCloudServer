@@ -11,6 +11,7 @@ class VersionVector(object):
         self.lock = threading.RLock()
 
     def to_dict(self):
+        self.lock.acquire()
         dict = {}
         dict['w_rev'] = self.w_rev
         dict['r_rev'] = self.r_rev
@@ -18,6 +19,7 @@ class VersionVector(object):
         for rev in self.vector:
             vector.append(rev.to_dict())
         dict['vector'] = vector
+        self.lock.release()
         return dict
 
     def add_temporary_node(self, modifier, modified_time, size, base_rev):
@@ -31,7 +33,7 @@ class VersionVector(object):
     def update_r_rev(self):
         self.lock.acquire()
         while self.r_rev < self.w_rev:
-            if not self.vector[self.r_rev + 1].temporary:
+            if not self.vector[self.r_rev + 1].isTtemporary():
                 self.r_rev += 1
             else:
                 break
@@ -40,8 +42,8 @@ class VersionVector(object):
     def set_readable(self, rev):
         self.lock.acquire()
         vnode = self.vector[rev]
-        if vnode.temporary:
-            vnode.temporary = False
+        if vnode.isTemporary():
+            vnode.setTemporary(False)
         self.update_r_rev()
         self.lock.release()
 
@@ -50,9 +52,7 @@ class VersionVector(object):
         if rev is None:
             rev = self.r_rev
         vnode = self.vector[rev]
-        hashlist = []
-        for vb in vnode.blocks:
-            hashlist.append(vb.hash)
+        hashlist = vnode.read_hash_list()
         self.lock.release()
         return rev, hashlist
 

@@ -24,6 +24,12 @@
     <Compile Include="Cache\ContainerCache.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Cache\MetadataCache.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Cache\UserCache.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Cache\__init__.py">
       <SubType>Code</SubType>
     </Compile>

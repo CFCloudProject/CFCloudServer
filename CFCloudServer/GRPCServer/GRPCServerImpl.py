@@ -8,45 +8,45 @@ from . import GRPCServer_pb2, GRPCServer_pb2_grpc
 class GRPCServerImpl(GRPCServer_pb2_grpc.GRPCServerServicer):
 
     def Register(self, request, context):
-        email = request.Email
-        password = request.Password
-        db_password = account_dic.get(email, None)
-        if(db_password==None):
-            user_id = createUserFold()
-            writeShadow(email, password, user_id, request.FirstName, request.LastName, account_dic)            
-            return GRPCServer_pb2.RegisterResult(Succeed  = True, Error = 0)
+        user = Global._user_cache.register(request.Email, request.Password, request.FirstName, request.LastName)
+        if user is None:
+            return GRPCServer_pb2.RegisterResult(Succeed = False, Error = 1)
         else:
-            return GRPCServer_pb2.RegisterResult(Succeed  = False, Error = 1)
-        #return super().Register(request, context)
+            Global.create_user_namespace(user.userid)
+            return GRPCServer_pb2.RegisterResult(Succeed = True, Error = 0)
 
     def Login(self, request, context):
         email = request.Email
         password = request.Password
-        info = account_dic.get(email, None)
-        db_password = info[0]
-        user_id = info[1]
-        if(db_password==None):
-            return GRPCServer_pb2.LoginResult(Succeed  = False, Error = 1, SessionId = None,
-                                         Email = None, Password = None, FirstName = None,
-                                         LastName = None)
+        flag, session_id, firstname, lastname = Global._user_cache.login(email, password)
+        if flag == 0:
+            return GRPCServer_pb2.LoginResult(
+                Succeed = True, 
+                Error = 0, 
+                Email = email, 
+                FirstName = firstname, 
+                LastName = lastname)
+        elif flag == 1:
+            return GRPCServer_pb2.LoginResult(
+                Succeed = False, 
+                Error = 1, 
+                SessionId = None,
+                Email = None, 
+                FirstName = None,
+                LastName = None)
         else:
-            if(db_password != password):
-                return GRPCServer_pb2.LoginResult(Succeed  = False, Error = 2, SessionId = None,
-                                         Email = None, Password = None, FirstName = None,
-                                         LastName = None)
-            else:
-                user_sid = uuid.uuid1()
-                connect_user.update({user_sid:user_id})
-                return GRPCServer_pb2.LoginResult(Succeed  = True, Error = 0, SessionId = user_sid,
-                                         Email = email, Password = db_password, FirstName = info[2],
-                                         LastName = info[3])
-        #return super().Login(request, context)
+            return GRPCServer_pb2.LoginResult(
+                Succeed = False, 
+                Error = 2, 
+                SessionId = None,
+                Email = None, 
+                FirstName = None,
+                LastName = None)
 
     def Logout(self, request, context):
-        user_sid = request.SessionId    
-        del connect_user[user_sid]
-        return GRPCServer_pb2.StringResponse(PayLoad = "logout successfully")
-        #return super().Logout(request, context)
+        session_id = request.SessionId
+        Global._user_cache.logout(session_id)
+        return GRPCServer_pb2.StringResponse(PayLoad = '')
 
     def HeartBeat(self, request, context):
         return super().HeartBeat(request, context)

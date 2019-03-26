@@ -2,61 +2,78 @@ import pickle
 import os
 import json
 import threading
+import Global
 from . import VersionVector, User
 
 class Metadata(object):
 
-    def __init__(self, tag, name, fullpath, size, rev, creation_time, modified_time, modifier, owner, is_shared, sharedusers, versions = None):
-        self.tag = tag
-        self.name = name
-        self.fullpath = fullpath
-        self.size = size
-        self.rev = rev
-        self.creation_time = creation_time
-        self.modified_time = modified_time
-        self.modifier = modifier
-        self.owner = owner
-        self.is_shared = is_shared
-        self.sharedusers = sharedusers
+    def __init__(self, tag, name, fullpath, size, rev, 
+                 creation_time, modified_time, modifier, 
+                 owner, is_shared, sharedusers, versions = None):
+        self.attributes = {}
+        self.attributes['tag'] = tag                           # 'File' or 'Folder'
+        self.attributes['name'] = name
+        self.attributes['fullpath'] = fullpath
+        self.attributes['size'] = size
+        self.attributes['rev'] = rev
+        self.attributes['creation_time'] = creation_time
+        self.attributes['modified_time'] = modified_time
+        self.attributes['modifier'] = modifier
+        self.attributes['owner'] = owner
+        self.attributes['is_shared'] = is_shared
+        self.attributes['sharedusers'] = sharedusers
         if versions is None:
-            if self.tag == 'File':
+            if tag == 'File':
                 self.versions = VersionVector.VersionVector()
             else:
                 self.versions = None
         else:
             self.versions = versions
+        self.dirty = False
+        if tag == 'File':
+            self.meta_path = Global.efs_file_root + '/user_' 
+            + str(owner.userid) + fullpath + '.metadata'
+        else:
+            self.meta_path = Global.efs_file_root + '/user_' 
+            + str(owner.userid) + fullpath + '/.metadata'
         self.lock = threading.RLock()
+
+    def set_attribute(name, attribute):
+        self.lock.acquire()
+        self.attributes[name] = attribute
+        self.dirty = True
+        self.lock.release()
 
     def share(self, user):
         self.lock.acquire()
-        self.is_shared = True
-        self.sharedusers.append(user)
+        self.attributes['is_shared'] = True
+        self.attributes['sharedusers'].append(user)
+        self.dirty = True
         self.lock.release()
 
-    def to_dict_except_versions(self):
+    def to_dict_attributes(self):
         self.lock.acquire()
         dict = {}
-        dict['tag'] = self.tag                          # string
-        dict['name'] = self.name                        # string
-        dict['fullpath'] = self.fullpath                # string
-        dict['size'] = self.size                        # int
-        dict['rev'] = self.rev                          # int
-        dict['creation_time'] = self.creation_time      # int
-        dict['modified_time'] = self.modified_time      # int
-        dict['modifier'] = self.modifier.__dict__       # User
-        dict['owner'] = self.owner.__dict__             # User
-        dict['is_shared'] = self.is_shared              # bool
+        dict['tag'] = self.attributes['tag']                          # string
+        dict['name'] = self.attributes['name']                        # string
+        dict['fullpath'] = self.attributes['fullpath']                # string
+        dict['size'] = self.attributes['size']                        # int
+        dict['rev'] = self.attributes['rev']                          # int
+        dict['creation_time'] = self.attributes['creation_time']      # int
+        dict['modified_time'] = self.attributes['modified_time']      # int
+        dict['modifier'] = self.attributes['modifier'].__dict__       # User
+        dict['owner'] = self.attributes['owner'].__dict__             # User
+        dict['is_shared'] = self.attributes['is_shared']              # bool
         shared_users = []
-        for user in self.sharedusers:
+        for user in self.attributes['sharedusers']:
             shared_users.append(user.__dict__)
-        dict['sharedusers'] = shared_users              # [User]
-        # no need to send VersionVector to user
+        dict['sharedusers'] = shared_users                            # [User]
         self.lock.release()
         return dict
 
     def to_dict(self):
         self.lock.acquire()
-        dict = self.to_dict_except_versions()
+        dict = self.to_dict_attributes()
         if self.versions is not None:
             dict['versions'] = self.versions.to_dict()
         self.lock.release()
@@ -64,15 +81,17 @@ class Metadata(object):
 
     def to_json_string(self):
         self.lock.acquire()
-        dict = self.to_dict_except_versions()
+        dict = self.to_dict_attributes()
         self.lock.release()
         return json.dumps(dict)
 
-    def to_metadata_file(self, file):
+    def write_back(self):
         self.lock.acquire()
-        fp = open(filepath, 'wb')
-        pickle.dump(self.to_dict(), fp)
-        fp.close()
+        if self.dirty:
+            fp = open(self.meta_path, 'wb')
+            pickle.dump(self.to_dict(), fp)
+            fp.close()
+            self.dirty = False
         self.lock.release()
 
 def from_dict(dict):
@@ -94,10 +113,11 @@ def from_dict(dict):
                     creation_time, modified_time, modifier, 
                     owner, is_shared, shared_users, versions)
 
-def from_metadata_file(file):
-    if(os.path.exists(file)):
-        fp = open(file, 'rb')
+def load(path):
+    if(os.path.exists(path)):
+        fp = open(path, 'rb')
         dict = pickle.load(fp)
+        fp.close()
         return from_dict(dict)
     else:
         return None

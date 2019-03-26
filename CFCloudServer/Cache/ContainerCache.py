@@ -1,4 +1,3 @@
-import Global
 import Models.Container as Container
 import threading
 
@@ -20,7 +19,7 @@ class ccnode(object):
     def write_block(self, container_id, block_id, data):
         self.lock.acquire()
         if container_id != self.container.id:
-            self.load_container(container_id)
+            self.__load_container(container_id)
         ret = self.container.write_block(block_id, data)
         self.lock.release()
         return ret
@@ -33,7 +32,7 @@ class ccnode(object):
         self.lock.release()
         return ret
 
-    def load_container(self, container_id):
+    def __load_container(self, container_id):
         if not self.empty:
             write_back = False
             while not write_back:
@@ -61,7 +60,7 @@ class ContainerCache(object):
         _iter.next = self.head
         self.head.prev = _iter
 
-    def visit(self, _node):
+    def __visit(self, _node):
         self.lock.acquire()
         if _node == self.head:
             pass
@@ -77,9 +76,9 @@ class ContainerCache(object):
             self.head = _node
         self.lock.release()
 
-    def get_usable_node(self, container_id):
+    def __get_usable_node(self, container_id):
         self.lock.acquire()
-        node = table.get(block.container_id)
+        node = table.get(container_id)
         if node is None:
             if self.count == self.max:
                 node = self.head.prev
@@ -90,19 +89,19 @@ class ContainerCache(object):
                     node = node.next
                 self.count += 1
             self.table[container_id] = node
-        self.visit(node)
+        self.__visit(node)
         self.lock.release()
         return node
 
     def read_block(self, block):
-        node = self.get_usable_node(block.container_id)
+        node = self.__get_usable_node(block.container_id)
         return node.read_block(block)
 
     def write_block(self, container_id, block_id, data):
-        node = self.get_usable_node(container_id)
+        node = self.__get_usable_node(container_id)
         return node.write_block(container_id, block_id, data)
 
     def delete_block(self, block):
-        node = self.get_usable_node(block.container_id)
+        node = self.__get_usable_node(block.container_id)
         return node.delete_block(block)
 

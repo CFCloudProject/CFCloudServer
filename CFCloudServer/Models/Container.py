@@ -25,16 +25,17 @@ class Container(object):
         self.lock.acquire()
         key = 'Container_' + str(self.id)
         if not self.dirty:
-            result = True
+            self.lock.release()
+            return True
         else:
             ret = Global._S3Connector.upload(key, self.data)
             if ret:
                 self.dirty = False
-                result = True
+                self.lock.release()
+                return True
             else:
-                result = False
-        self.lock.release()
-        return result
+                self.lock.release()
+                return False
 
     def read_block(self, block):
         self.lock.acquire()

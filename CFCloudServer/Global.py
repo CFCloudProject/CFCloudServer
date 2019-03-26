@@ -1,6 +1,7 @@
 import S3Connector
 from MysqlConnector import *
 from Cache import *
+from Models import User
 
 #S3 Config
 access_key = 'AKIAI3GZAZ77PXWO3HOQ'
@@ -29,7 +30,8 @@ def get_new_container_id():
 container_cache_max_capacity = 50
 
 #Global Variables
-_S3Connector = S3Connector.S3Connector()
-_MysqlConnector = Connector.Connector()
-_BlockIndex = BlockIndex.BlockIndex(_MysqlConnector, 'BLOCK_INDEX')
-_container_cache = ContainerCache.ContainerCache(container_cache_max_capacity)
+_server_user = User.User('server', None, 'CFCloud', 'Server')
+#_S3Connector = S3Connector.S3Connector()
+#_MysqlConnector = Connector.Connector()
+#_BlockIndex = BlockIndex.BlockIndex(_MysqlConnector, 'BLOCK_INDEX')
+#_container_cache = ContainerCache.ContainerCache(container_cache_max_capacity)

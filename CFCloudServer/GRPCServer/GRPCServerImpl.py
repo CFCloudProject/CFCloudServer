@@ -2,8 +2,7 @@ import sys
 import json
 import math
 import Global
-import GRPCServer_pb2
-import GRPCServer_pb2_grpc
+from . import GRPCServer_pb2, GRPCServer_pb2_grpc
 
 
 class GRPCServerImpl(GRPCServer_pb2_grpc.GRPCServerServicer):

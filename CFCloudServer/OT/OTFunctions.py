@@ -1,7 +1,6 @@
-import diff_match_patch
 import re
 import six
-from Operation import *
+from . import diff_match_patch, Operation
 
 # operation generation
 # old & new must be bytes
@@ -15,10 +14,10 @@ def GenerateOpList(old, new):
         if diff[0] == 0:
             index = index + len(diff[1])
         elif diff[0] == 1:
-            ret.append(Operation('i', index, diff[1]))
+            ret.append(Operation.Operation('i', index, diff[1]))
             index = index + len(diff[1])
         else:
-            ret.append(Operation('d', index, len(diff[1])))
+            ret.append(Operation.Operation('d', index, len(diff[1])))
     return ret
 
 # transform function
@@ -34,7 +33,7 @@ def TransformOpvsOp(o1, o2):
         elif o2.index < o1.index < o2.index + o2.data:
             length = o2.data
             o2.data = o1.index - o2.index
-            return o2, Operation('d', o2.index + len(o1.data), o2.index + length - o1.index)
+            return o2, Operation.Operation('d', o2.index + len(o1.data), o2.index + length - o1.index)
         else:
             return o2, None
     elif o1.type == 'd' and o2.type == 'i':
@@ -143,6 +142,6 @@ def bytes2oplist(b):
     while pos < len:
         op_len = b[pos] * 256 + b[pos + 1]
         pos += 2
-        oplist.append(bytes2op(b[pos : pos + op_len]))
+        oplist.append(Operation.bytes2op(b[pos : pos + op_len]))
         pos += op_len
     return oplist

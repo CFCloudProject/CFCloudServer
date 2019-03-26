@@ -51,6 +51,13 @@ class mcnode(object):
         self.metadata.add_vitrual_block(rev, block)
         self.lock.release()
 
+    def add_vitrual_blocks(self, path, rev, blocks):
+        self.lock.acquire()
+        if self.metadata.meta_path != path:
+            self.__load_metadata(path)
+        self.metadata.add_vitrual_blocks(rev, blocks)
+        self.lock.release()
+
     def read_block(self, path, rev, index):
         self.lock.acquire()
         if self.metadata.meta_path != path:
@@ -140,6 +147,10 @@ class MetadataCache(object):
     def add_vitrual_block(self, path, rev, block):
         node = self.__get_usable_node(path)
         node.add_vitrual_block(path, rev, block)
+
+    def add_vitrual_blocks(self, path, rev, blocks):
+        node = self.__get_usable_node(path)
+        node.add_vitrual_blocks(path, rev, blocks)
 
     def read_block(self, path, rev, index):
         node = self.__get_usable_node(path)

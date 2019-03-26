@@ -78,6 +78,7 @@ class GRPCServerImpl(GRPCServer_pb2_grpc.GRPCServerServicer):
         return GRPCServer_pb2.StringResponse(PayLoad = jstr)
 
     def UploadBlock(self, request_iterator, context):
+        vblocks = []
         for request in request_iterator:
             user = Global._user_cache.get_user(request.SessionId)
             path = request.Path
@@ -128,8 +129,8 @@ class GRPCServerImpl(GRPCServer_pb2_grpc.GRPCServerServicer):
                 else:
                     # write op
                     pass
-            Global._metadata_cache.add_vitrual_block(path + '.metadata', rev, vblock)
-        Global._metadata_cache.set_readable(path + '.metadata', rev)
+            vblocks.append(vblock)
+        Global._metadata_cache.add_vitrual_blocks(path + '.metadata', rev, vblocks)
         return GRPCServer_pb2.StringResponse(PayLoad = '')
 
     def Download(self, request, context):

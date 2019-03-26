@@ -26,17 +26,12 @@ class VersionVector(object):
 
     def add_temporary_node(self, modifier, modified_time, size, base_rev):
         self.lock.acquire()
+        conflict = base_rev < self.w_rev
         self.w_rev += 1
-        vnode = VersionNode.VersionNode(base_rev, self.w_rev, modifier, modified_time, size, base_rev < self.r_rev)
+        vnode = VersionNode.VersionNode(base_rev, self.w_rev, modifier, modified_time, size, conflict)
         self.vector.append(vnode)
-        if base_rev < self.r_rev:
-            self.w_rev += 1
-            vnode = VersionNode.VersionNode(0, self.w_rev, Global._server_user, modified_time, 0, False)
-            self.lock.release()
-            return self.w_rev - 1
-        else:
-            self.lock.release()
-            return self.w_rev
+        self.lock.release()
+        return self.w_rev
 
     def add_vitrual_block(self, rev, block):
         self.lock.acquire()
@@ -44,14 +39,20 @@ class VersionVector(object):
         vnode.add_vitrual_block(block)
         self.lock.release()
 
-    def __update_r_rev(self):
+    def add_vitrual_blocks(self, rev, blocks):
         self.lock.acquire()
+        vnode = self.vector[rev]
+        for block in blocks:
+            vnode.add_vitrual_block(block)
+        self.set_readable(rev)
+        self.lock.release()
+
+    def __update_r_rev(self):
         while self.r_rev < self.w_rev:
             if not self.vector[self.r_rev + 1].isTtemporary():
                 self.r_rev += 1
             else:
                 break
-        self.lock.release()
 
     def set_readable(self, rev):
         self.lock.acquire()
@@ -66,6 +67,7 @@ class VersionVector(object):
         return self.r_rev, vnode.size, vnode.modified_time, vnode.modifier
 
     def __resolve_conflict(self, rev):
+
         pass
 
     def read_hash_list(self, rev = None):

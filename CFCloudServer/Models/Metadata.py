@@ -67,6 +67,12 @@ class Metadata(object):
         self.dirty = True
         self.lock.release()
 
+    def add_vitrual_blocks(self, rev, blocks):
+        self.lock.acquire()
+        self.versions.add_vitrual_blocks(rev, blocks)
+        self.dirty = True
+        self.lock.release()
+
     def read_block(self, rev, index):
         self.lock.acquire()
         data = self.versions.read_block(index, rev)

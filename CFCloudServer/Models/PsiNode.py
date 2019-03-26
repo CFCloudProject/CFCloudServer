@@ -3,21 +3,17 @@ from Models.Container import Container
 from Global import _container_cache
 
 class PSINode(object):
-    """description of class"""
+
     def __init__(self):
         self.paths = set()
-        self.files = set()
         self.containers = []
-        self.children = []
+
     def addPath(self, path):
         self.paths.add(path)
-    def addFile(self, file):
-        self.files.add(file)
+
     def addContainer(self, container):
         self.containers.append(container)
-    def addChild(self, child):
-        self.children.append(child)
-        
+
     def checkPath(self, filepath):
         if(len(self.children)==0):
             return 0,0

@@ -1,5 +1,7 @@
 import threading
 import os
+import six
+import hashlib
 import S3Connector
 from MysqlConnector import *
 from Cache import *
@@ -61,18 +63,61 @@ def create_user_namesapce(user_id):
     os.mkdir(namespace)
 
 # Global Variables
-global _server_user
-global _S3Connector
-global _BlockIndex
-global _container_cache
-global _metadata_cache
-global _user_cache
+_server_user = User.User('server', None, 'CFCloud', 'Server')
+_S3Connector = S3Connector.S3Connector()
+_MysqlConnector = Connector.Connector()
+_BlockIndex = BlockIndex.BlockIndex(_MysqlConnector, 'BLOCK_INDEX')
+_container_cache = ContainerCache.ContainerCache(container_cache_max_capacity)
+_metadata_cache = MetadataCache.MetadataCache(metadata_cache_max_capacity)
+_user_cache = UserCache.UserCache(sqlite3_db_path)
 
-def init():
-    _server_user = User.User('server', None, 'CFCloud', 'Server')
-    _S3Connector = S3Connector.S3Connector()
-    _MysqlConnector = Connector.Connector()
-    _BlockIndex = BlockIndex.BlockIndex(_MysqlConnector, 'BLOCK_INDEX')
-    _container_cache = ContainerCache.ContainerCache(container_cache_max_capacity)
-    _metadata_cache = MetadataCache.MetadataCache(metadata_cache_max_capacity)
-    _user_cache = UserCache.UserCache(sqlite3_db_path)
+# util methods
+def get_true_path(user, path):
+    user_root = Global.efs_file_root + '/user_' + str(user.userid)
+    pos = path.find('/', 1)
+    if pos != -1:
+        linkpath = user_root + path[0 : path.find('/', 1)] + '.li'
+    else:
+        linkpath = user_root + path + '.li'
+    if os.path.exists(linkpath):
+        fp = open(path, 'rb')
+        per = fp.readline()
+        fp.close()
+        if pos != -1:
+            ret = per + path[path.find('/', 1) : len(path)]
+        else:
+            ret = per
+    else:
+        ret = user_root + path
+    return ret
+
+def int2bytes(n):
+    ret = b''
+    while n > 0:
+        m = n % 256
+        ret = six.int2byte(m) + ret
+        n = int(n / 256)
+    return ret
+
+def get_adler32(b):
+    s1 = 1
+    s2 = 0
+    pos = 0
+    remain = len(b)
+    while remain > 0:
+        n = remain if 3800 > remain else 3800
+        remain -= n
+        while n > 0:
+            s1 = s1 + (b[pos] & 0xFF)
+            s2 = s2 + s1
+            pos += 1
+            n -= 1
+        s1 %= 65521
+        s2 %= 65521
+    ret = int2bytes(s2) + int2bytes(s1)
+    return ret.hex()
+
+def get_md5(b):
+    m = hashlib.md5()
+    m.update(b)
+    return m.hexdigest()

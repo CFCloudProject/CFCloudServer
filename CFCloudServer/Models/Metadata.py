@@ -38,9 +38,54 @@ class Metadata(object):
             + str(owner.userid) + fullpath + '/.metadata'
         self.lock = threading.RLock()
 
-    def set_attribute(name, attribute):
+    def set_attribute(self, name, attribute):
         self.lock.acquire()
         self.attributes[name] = attribute
+        self.dirty = True
+        self.lock.release()
+
+    def get_attribute(self, name):
+        self.lock.acquire()
+        attr = self.attributes[name]
+        self.lock.release()
+        return attr
+
+    def create_temp_version(self, modifier, modified_time, size, base_rev):
+        self.lock.acquire()
+        rev = self.versions.add_temporary_node(modifier, modified_time, size, base_rev)
+        if base_rev is None:
+            haselist = []
+        else:
+            r, hashlist = self.versions.read_hash_list(base_rev)
+        self.dirty = True
+        self.lock.release()
+        return rev, hashlist
+
+    def add_vitrual_block(self, rev, block):
+        self.lock.acquire()
+        self.versions.add_vitrual_block(rev, block)
+        self.dirty = True
+        self.lock.release()
+
+    def read_block(self, rev, index):
+        self.lock.acquire()
+        data = self.versions.read_block(index, rev)
+        self.lock.release()
+        return data
+
+    def read_blocks(self, rev, indexs):
+        self.lock.acquire()
+        for index in indexs:
+            yield self.versions.read_block(index, rev)
+        self.lock.release()
+
+    def set_readable(self, rev):
+        self.lock.acquire()
+        version, size, time, modifier = self.versions.set_readable(rev)
+        self.attributes['rev'] = version
+        self.attributes['size'] = size
+        self.attributes['modified_time'] = time
+        self.attributes['modifier'] = modifier
         self.dirty = True
         self.lock.release()
 

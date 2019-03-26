@@ -3,12 +3,13 @@ import threading
 
 class VersionNode(object):
     
-    def __init__(self, base_rev, rev, modifier, modified_time, size):
+    def __init__(self, base_rev, rev, modifier, modified_time, size, isconflict):
         self.base_rev = base_rev
         self.rev = rev
         self.modifier = modifier
         self.modified_time = modified_time
         self.size = size
+        self.isconflict = isconflict
         self.blocks = []
         self.temporary = True
         self.lock = threading.RLock()
@@ -21,6 +22,7 @@ class VersionNode(object):
         dict['modifier'] = self.modifier.__dict__
         dict['modified_time'] = self.modified_time
         dict['size'] = self.size
+        dict['isconflict'] = self.isconflict
         dict['temporary'] = self.temporary
         blocks = []
         for block in self.blocks:
@@ -68,7 +70,8 @@ def from_dict(dict):
     modifier = User.from_dict(dict.get('modifier'))
     modified_time = dict.get('modified_time')
     size = dict.get('size')
-    vnode = VersionNode(base_rev, rev, modifier, modified_time, size)
+    isconflict = dict.get('isconflict')
+    vnode = VersionNode(base_rev, rev, modifier, modified_time, size, isconflict)
     for block in dict.get('blocks'):
         vnode.add_vitrual_block(VitrualBlock.from_dict(block))
     vnode.temporary = dict.get('temporary')

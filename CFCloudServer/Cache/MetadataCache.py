@@ -6,6 +6,7 @@ class mcnode(object):
 
     def __init__(self):
         self.empty = True
+        self.metadata = None
         self.lock = threading.Lock()
 
     def __load_metadata(self, path):
@@ -13,6 +14,65 @@ class mcnode(object):
             self.metadata.write_back()
         self.metadata = Metadata.load(path)
         self.empty = False
+
+    def get_attribute(self, path, name):
+        self.lock.acquire()
+        if self.metadata.meta_path != path:
+            self.__load_metadata(path)
+        attr = self.metadata.get_attribute(name)
+        self.lock.release()
+        return attr
+
+    def set_attribute(self, path, name, attr):
+        self.lock.acquire()
+        if self.metadata.meta_path != path:
+            self.__load_metadata(path)
+        self.metadata.set_attribute(name, attr)
+        self.lock.release()
+
+    def create_temp_version(self, path, fullpath, modifier, modified_time, size, base_rev):
+        self.lock.acquire()
+        if base_rev is None:
+            if not self.empty:
+                self.metadata.write_back()
+            self.metadata = Metadata.Metadata('File', fullpath[fullpath.rfind('/') + 1 : len(fullpath)], 
+                                              fullpath, size, -1, modified_time, modified_time, 
+                                              modifier, modifier, False, [modifier])
+        elif self.metadata.meta_path != path:
+            self.__load_metadata(path)
+        rev, hashlist = self.metadata.create_temp_version(modifier, modified_time, size, base_rev)
+        self.lock.acquire()
+        return rev, hashlist
+
+    def add_vitrual_block(self, path, rev, block):
+        self.lock.acquire()
+        if self.metadata.meta_path != path:
+            self.__load_metadata(path)
+        self.metadata.add_vitrual_block(rev, block)
+        self.lock.release()
+
+    def read_block(self, path, rev, index):
+        self.lock.acquire()
+        if self.metadata.meta_path != path:
+            self.__load_metadata(path)
+        data = self.metadata.read_block(rev, index)
+        self.lock.release()
+        return data
+
+    def read_blocks(self, path, rev, indexs):
+        self.lock.acquire()
+        if self.metadata.meta_path != path:
+            self.__load_metadata(path)
+        data = self.metadata.read_blocks(rev, indexs)
+        self.lock.release()
+        return data
+
+    def set_readable(self, path, rev):
+        self.lock.acquire()
+        if self.metadata.meta_path != path:
+            self.__load_metadata(path)
+        self.metadata.set_readable(rev)
+        self.lock.release()
 
 class MetadataCache(object):
 
@@ -63,3 +123,32 @@ class MetadataCache(object):
         self.__visit(node)
         self.lock.release()
         return node
+
+    def get_attribute(self, path, name):
+        node = self.__get_usable_node(path)
+        return node.get_attribute(path, name)
+
+    def set_attribute(self, path, name, attr):
+        node = self.__get_usable_node(path)
+        return node.set_attribute(path, name, attr)
+
+    def create_temp_version(self, path, fullpath, modifier, modified_time, size, base_rev):
+        node = self.__get_usable_node(path)
+        rev, hashlist = node.create_temp_version(path, fullpath, modifier, modified_time, size, base_rev)
+        return rev, hashlist
+
+    def add_vitrual_block(self, path, rev, block):
+        node = self.__get_usable_node(path)
+        node.add_vitrual_block(path, rev, block)
+
+    def read_block(self, path, rev, index):
+        node = self.__get_usable_node(path)
+        return node.read_block(path, rev, index)
+
+    def read_blocks(self, path, rev, indexs):
+        node = self.__get_usable_node(path)
+        return node.read_block(path, rev, indexs)
+
+    def set_readable(self, path, rev):
+        node = self.__get_usable_node(path)
+        node.set_readable(path, rev)

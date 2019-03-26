@@ -16,7 +16,7 @@ class UserCache(object):
     def __del__(self):
         self.conn.close()
 
-    def register(email, password, firstname, lastname):
+    def register(self, email, password, firstname, lastname):
         sql = "SELECT * FROM USER WHERE EMAIL = '%s'" % email
         ret = self.conn.cursor().execute(sql).fetchall()
         if len(ret) > 0:
@@ -29,7 +29,7 @@ class UserCache(object):
             self.conn.commit()
             return user
 
-    def login(email, password):
+    def login(self, email, password):
         sql = "SELECT * FROM USER WHERE EMAIL = '%s'" % email
         ret = self.conn.cursor().execute(sql).fetchone()
         if ret is None:
@@ -44,12 +44,21 @@ class UserCache(object):
                 self.conn.commit()
                 return 0, session_id, ret[3], ret[4]
 
-    def logout(session_id):
+    def logout(self, session_id):
         sql = "DELETE FROM SESSION WHERE SESSIONID = '%s'" % session_id
         self.conn.cursor().execute(sql)
         self.conn.commit()
 
-    def get_user(session_id):
+    def get_user_by_email(self, email):
+        sql = "SELECT * FROM USER WHERE EMAIL = '%s'" % email
+        ret = self.conn.cursor().execute(sql).fetchone()
+        if ret is None:
+            return None
+        else:
+            user = User.User(ret[1], ret[2], ret[3], ret[4], ret[0])
+            return user
+
+    def get_user(self, session_id):
         sql = "SELECT * FROM SESSION WHERE SESSIONID = '%s'" % session_id
         ret = self.conn.cursor().execute(sql).fetchone()
         if ret is None:
@@ -58,7 +67,7 @@ class UserCache(object):
             user = User.User(ret[1], ret[2], ret[3], ret[4], ret[0])
             return user
 
-    def get_sessions(user):
+    def get_sessions(self, user):
         sql = "SELECT * FROM SESSION WHERE USERID = '%s'" % user.userid
         ret = self.conn.cursor().execute(sql).fetchall()
         sessions = []

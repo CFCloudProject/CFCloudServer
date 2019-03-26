@@ -1,5 +1,8 @@
 import sys
+from Models.VitrualBlock import VitrualBlock
+from OT import OTFunctions
 import json
+import os
 import math
 import Global
 from . import GRPCServer_pb2, GRPCServer_pb2_grpc
@@ -64,42 +67,70 @@ class GRPCServerImpl(GRPCServer_pb2_grpc.GRPCServerServicer):
         return super().Delete(request, context)
 
     def Upload(self, request, context):
-        user_id = connect_user.get(request.SessionId)
-        basefile = request.BaseRev 
-        path = request.Path
+        user = Global._user_cache.get_user(request.SessionId)
+        baserev = int(request.BaseRev)
         size = request.Size
-        time = request.Time
-        metadata = Metadata()
-        if(metadata.readMetadata(path)==False):
-            metadata.vv.size = size
-            metadata.vv.time = time
-            metadata.writeMetadata(path)
-        version_num = metadata.vv.version + 1
-        if(basefile == None):
-            jstr = json.dumps(blockInfo(version_num,[]))
-            return GRPCServer_pb2.StringResponse(PayLoad = jstr)
-        else:
-            infos = []
-            for block in metadata.vv[int(basefile)].blocks:
-                infos.append((block.sha256,block.md5s))
-            jstr = json.dumps(blockInfo(version_num,infos))
-            return GRPCServer_pb2.StringResponse(PayLoad = jstr)
-        #return super().Upload(request, context)
+        modified_time = request.ModifiedTime
+        path = request.Path
+        path = Global.get_true_path(user, path)
+        rev, hashlist = Global._metadata_cache.create_temp_version(path + '.metadata', request.Path, user, modified_time, size, baserev)
+        jstr = json.dumps({'rev': rev, 'blocks': hashlist})
+        return GRPCServer_pb2.StringResponse(PayLoad = jstr)
 
     def UploadBlock(self, request_iterator, context):
-        vblockList = []
-        path = request_iterator.path
-        while(1):
-            size = request_iterator.size  
-            container, containid, unitid = recAddNode(root, path, 0, size)
-            bid = container.writeContainer(unitid, request_iterator.data, size)
-            block = Block(bid, containid, unitid, math.ceil(size/UNITSIZE), size)
-            insert(block)
-            vblockList.append(block)
-            yield model_pb2.file_Response(data = block)
-        # wait for further 
-        vnode = VersionNode(request_iterator.verNum, vblockList)
-        #return super().UploadBlock(request_iterator, context)
+        for request in request_iterator:
+            user = Global._user_cache.get_user(request.SessionId)
+            path = request.Path
+            path = Global.get_true_path(user, path)
+            base_rev = int(request.BaseRev)
+            rev = int(request.Rev)
+            base_index = request.BaseIndex
+            index = request.Index
+            confident = request.Confident
+            hash = request.Hash
+            data = request.Content
+            if data is None:
+                vblock = VitrualBlock(str(base_rev) + ':' + base_index, None, None, hash)
+            else:
+                if base_rev is None:
+                    vblock = VitrualBlock(None, None, hash, hash)
+                    writedata = True
+                else:
+                    if confident:
+                        oldata = Global._metadata_cache.read_block(path + '.metadata', base_rev, int(base_index))
+                        op_data = OTFunctions.oplist2bytes(OTFunctions.GenerateOpList(oldata, data))
+                        if len(op_data) < len(data):
+                            op_hash = Global.get_adler32(op_data) + Global.get_md5(op_hash)
+                            vblock = VitrualBlock(str(base_rev) + ':' + base_index, op_hash, None, hash)
+                            writedata = False
+                        else:
+                            vblock = VitrualBlock(None, None, hash, hash)
+                            writedata = True
+                    else:
+                        baseindexs = base_index.split('|')
+                        size = len(data)
+                        op_data = None
+                        for _data in Global._metadata_cache.read_blocks(path + '.metadata', base_rev, baseindexs):
+                            _op_data = OTFunctions.oplist2bytes(OTFunctions.GenerateOpList(_data, data))
+                            if (len(_op_data) < size):
+                                size = len(_op_data)
+                                op_data = _op_data
+                        if op_data is None:
+                            vblock = VitrualBlock(None, None, hash, hash)
+                            writedata = True
+                        else:
+                            op_hash = Global.get_adler32(op_data) + Global.get_md5(op_hash)
+                            vblock = VitrualBlock(str(base_rev) + ':' + base_index, op_hash, None, hash)
+                            writedata = False
+                if writedata:
+                    # write data
+                    pass
+                else:
+                    # write op
+                    pass
+            Global._metadata_cache.add_vitrual_block(path + '.metadata', rev, vblock)
+        Global._metadata_cache.set_readable(path + '.metadata', rev)
+        return GRPCServer_pb2.StringResponse(PayLoad = '')
 
     def Download(self, request, context):
         return super().Download(request, context)

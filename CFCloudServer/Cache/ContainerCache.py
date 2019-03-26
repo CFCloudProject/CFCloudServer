@@ -6,11 +6,12 @@ class ccnode(object):
 
     def __init__(self):
         self.empty = True
+        self.container = None
         self.lock = threading.Lock()
 
     def read_block(self, block):
         self.lock.acquire()
-        if block.container_id != self.container.id:
+        if block.container is None or block.container_id != self.container.id:
             self.load_container(block.container_id)
         ret = self.container.read_block(block)
         self.lock.release()
@@ -18,7 +19,7 @@ class ccnode(object):
 
     def write_block(self, container_id, block_id, data):
         self.lock.acquire()
-        if container_id != self.container.id:
+        if block.container is None or container_id != self.container.id:
             self.__load_container(container_id)
         ret = self.container.write_block(block_id, data)
         self.lock.release()
@@ -26,7 +27,7 @@ class ccnode(object):
 
     def delete_block(self, block):
         self.lock.acquire()
-        if block.container_id != self.container.id:
+        if block.container is None or block.container_id != self.container.id:
             self.load_container(block.container_id)
         ret = self.container.delete_block(block)
         self.lock.release()

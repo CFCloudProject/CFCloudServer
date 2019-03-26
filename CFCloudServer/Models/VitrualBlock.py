@@ -13,9 +13,11 @@ class VitrualBlock(object):
 
     def get_hash(self):
         self.lock.acquire()
-        hash = self.hash
+        dict = {}
+        dict['adler32'] = self.hash[0:8]
+        dict['md5'] = self.hash[9:40]
         self.lock.release()
-        return hash
+        return dict
 
     def read_data(self):
         self.lock.acquire()

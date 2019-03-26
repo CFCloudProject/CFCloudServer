@@ -2,14 +2,12 @@ from GRPCServer import *
 from concurrent import futures
 import grpc
 import time
-import Global
 
 _port = '6060'
 _one_day_in_seconds = 24 * 60 * 60
 
 def server_start():
-    Global.init()
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers = 10))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers = 50))
     GRPCServer_pb2_grpc.add_GRPCServerServicer_to_server(GRPCServerImpl.GRPCServerImpl(), server)
     server.add_insecure_port('0.0.0.0:' + _port)
     server.start()

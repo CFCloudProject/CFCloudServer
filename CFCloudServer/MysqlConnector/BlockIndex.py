@@ -1,5 +1,6 @@
 import mysql
 from Models.Block import Block
+from . import Connector
 
 class BlockIndex():
 

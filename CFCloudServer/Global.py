@@ -2,10 +2,7 @@ import threading
 import os
 import six
 import hashlib
-import S3Connector
-from MysqlConnector import *
-from Cache import *
-from Models import User
+
 
 # S3 Config
 access_key = 'AKIAI3GZAZ77PXWO3HOQ'
@@ -56,20 +53,13 @@ metadata_cache_max_capacity = 400
 # User Id Generator
 user_id_generator = IdGenerator(0)
 def get_new_user_id():
-    return user_id_generator.next()
+   return user_id_generator.next()
 
 def create_user_namesapce(user_id):
     namespace = efs_file_root + '/user_' + str(user_id)
     os.mkdir(namespace)
 
-# Global Variables
-_server_user = User.User('server', None, 'CFCloud', 'Server')
-_S3Connector = S3Connector.S3Connector()
-_MysqlConnector = Connector.Connector()
-_BlockIndex = BlockIndex.BlockIndex(_MysqlConnector, 'BLOCK_INDEX')
-_container_cache = ContainerCache.ContainerCache(container_cache_max_capacity)
-_metadata_cache = MetadataCache.MetadataCache(metadata_cache_max_capacity)
-_user_cache = UserCache.UserCache(sqlite3_db_path)
+
 
 # util methods
 def get_true_path(user, path):

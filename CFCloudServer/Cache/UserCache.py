@@ -1,4 +1,4 @@
-import Models.User as User
+from Models import User
 import sqlite3
 import uuid
 

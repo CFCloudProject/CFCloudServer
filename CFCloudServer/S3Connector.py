@@ -13,7 +13,7 @@ class S3Connector(object):
             return True
         except Exception:
             return False
-
+        
     def download(self, key, start = None, end = None):
         try:
             if start is not None:
@@ -33,3 +33,7 @@ class S3Connector(object):
 
     def is_exist(self, key):
         pass
+    
+if __name__ == '__main__':
+    s3 = S3Connector()
+    s3.upload('hchen','1234')

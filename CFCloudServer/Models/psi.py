@@ -1,8 +1,6 @@
 import os
-from Models.Container import Container
-from Global import _container_cache
 
-class PSINode(object):
+class psinode(object):
 
     def __init__(self):
         self.paths = set()

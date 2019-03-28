@@ -1,29 +1,18 @@
-from . import VersionNode
-from OT import OTFunctions
-import Global
-import threading
+import vnode
 
-class VersionVector(object):
+class versions(object):
     
     def __init__(self):
         self.w_rev = -1
         self.r_rev = -1
         self.vector = []
-        self.lock = threading.RLock()
 
-    def to_dict(self):
-        self.lock.acquire()
-        dict = {}
-        dict['size'] = self.size
-        dict['w_rev'] = self.w_rev
-        dict['r_rev'] = self.r_rev
-        vector = []
-        for rev in self.vector:
-            vector.append(rev.to_dict())
-        dict['vector'] = vector
-        self.lock.release()
-        return dict
+    def get_hashlist(self, rev = None):
+        if rev is None:
+            rev = self.r_rev
+        return self.vector[rev].get_hastlist()
 
+    '''
     def add_temporary_node(self, modifier, modified_time, size, base_rev):
         self.lock.acquire()
         conflict = base_rev < self.w_rev
@@ -70,18 +59,6 @@ class VersionVector(object):
 
         pass
 
-    def read_hash_list(self, rev = None):
-        self.lock.acquire()
-        if rev is None:
-            rev = self.r_rev
-        if rev < 0:
-            hashlist = None
-        else:
-            vnode = self.vector[rev]
-            hashlist = vnode.read_hash_list()
-        self.lock.release()
-        return rev, hashlist
-
     def read_block(self, block_index, rev = None):
         self.lock.acquire()
         if rev is None:
@@ -113,12 +90,22 @@ class VersionVector(object):
         self.lock.acquire()
 
         self.lock.release()
+    '''
+
+    def to_dict(self):
+        dict = {}
+        dict['w_rev'] = self.w_rev
+        dict['r_rev'] = self.r_rev
+        dict['vector'] = []
+        for _vnode in self.vector:
+            dict['vector'].append(_vnode.__dict__)
+        return dict
 
 def from_dict(dict):
-    vv = VersionVector()
-    vv.size = dict.get('size')
-    vv.r_rev = dict.get('r_rev')
-    vv.w_rev = dict.get('w_rev')
-    for v_dict in dict.get('vector'):
-        vv.vector.append(VersionNode.from_dict(v_dict))
-    return vv
+    _versions = versions()
+    _versions.r_rev = dict.get('r_rev')
+    _versions.w_rev = dict.get('w_rev')
+    vector = dict.get('vector')
+    for v_dict in vector:
+        _versions.vector.append(vnode.from_dict(v_dict))
+    return _versions

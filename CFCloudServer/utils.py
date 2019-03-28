@@ -1,33 +1,10 @@
+import config
 import threading
 import os
 import six
 import hashlib
 
-print("aaaa")
-# S3 Config
-access_key = 'AKIAI3GZAZ77PXWO3HOQ'
-secret_key = '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'
-region = 'ap-southeast-1'
-bucket = '19cloud1'
-
-# EFS Config
-efs_root = ''
-efs_file_root = efs_root + '/namespaces'
-
-# Mysql Config
-mysql_config = {
-    'host': '127.0.0.1',
-    'port': 3306,
-    'user': 'root',
-    'password': '123456',
-    'database': 'BID_db',
-    'charset': 'utf8'
-    }
-
-# sqlite3 config
-sqlite3_db_path = efs_root + '/cfcloud.db'
-
-class IdGenerator(object):
+class id_generator(object):
 
     def __init__(self, first):
         self.global_id = first
@@ -40,41 +17,35 @@ class IdGenerator(object):
         self.lock.release()
         return id
 
-# Container Settings
-container_max_size = 4 * 1024 * 1024
-container_id_generator = IdGenerator(-1)
+# container id generator
+container_id_generator = id_generator(-1)
 def get_new_container_id():
     return container_id_generator.next()
 
-# Cache Settings
-container_cache_max_capacity = 50
-metadata_cache_max_capacity = 400
-
-# User Id Generator
-user_id_generator = IdGenerator(0)
+# user id generator
+user_id_generator = id_generator(0)
 def get_new_user_id():
    return user_id_generator.next()
 
-def create_user_namesapce(user_id):
-    namespace = efs_file_root + '/user_' + str(user_id)
-    os.mkdir(namespace)
-
-
-
 # util methods
+def create_user_namesapce(user_id):
+    namespace = config.efs_file_root + '/user_' + str(user_id)
+    if not os.path.exists(namespace):
+        os.mkdir(namespace)
+
 def get_true_path(user, path):
-    user_root = Global.efs_file_root + '/user_' + str(user.userid)
+    user_root = config.efs_file_root + '/user_' + str(user.user_id)
     pos = path.find('/', 1)
     if pos != -1:
-        linkpath = user_root + path[0 : path.find('/', 1)] + '.li'
+        linkpath = user_root + path[:path.find('/', 1)] + '.li'
     else:
         linkpath = user_root + path + '.li'
     if os.path.exists(linkpath):
-        fp = open(path, 'rb')
+        fp = open(path, 'r')
         per = fp.readline()
         fp.close()
         if pos != -1:
-            ret = per + path[path.find('/', 1) : len(path)]
+            ret = per + path[path.find('/', 1):]
         else:
             ret = per
     else:
@@ -89,7 +60,7 @@ def int2bytes(n):
         n = int(n / 256)
     return ret
 
-def get_adler32(b):
+def adler32(b):
     s1 = 1
     s2 = 0
     pos = 0
@@ -98,8 +69,8 @@ def get_adler32(b):
         n = remain if 3800 > remain else 3800
         remain -= n
         while n > 0:
-            s1 = s1 + (b[pos] & 0xFF)
-            s2 = s2 + s1
+            s1 += (b[pos] & 0xFF)
+            s2 += s1
             pos += 1
             n -= 1
         s1 %= 65521
@@ -107,7 +78,7 @@ def get_adler32(b):
     ret = int2bytes(s2) + int2bytes(s1)
     return ret.hex()
 
-def get_md5(b):
+def md5(b):
     m = hashlib.md5()
     m.update(b)
     return m.hexdigest()

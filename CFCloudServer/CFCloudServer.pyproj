@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3427e958-c2d5-40fa-b33b-a4f463eec2ef</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Start.py</StartupFile>
+    <StartupFile>start.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -21,80 +21,56 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Cache\ContainerCache.py">
+    <Compile Include="cache.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Cache\MetadataCache.py">
+    <Compile Include="user_session.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Cache\UserCache.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Cache\__init__.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Global.py" />
+    <Compile Include="config.py" />
     <Compile Include="GRPCServer\GRPCServer_pb2.py" />
     <Compile Include="GRPCServer\GRPCServer_pb2_grpc.py" />
-    <Compile Include="MysqlConnector\BlockIndex.py" />
-    <Compile Include="OT\diff_match_patch.py" />
-    <Compile Include="S3Connector.py" />
-    <Compile Include="Start.py">
+    <Compile Include="block_index.py" />
+    <Compile Include="diff_match_patch.py" />
+    <Compile Include="s3connector.py" />
+    <Compile Include="start.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="GRPCServer\GRPCServerImpl.py">
+    <Compile Include="GRPCServer\GRPCServer_impl.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="GRPCServer\__init__.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\Block.py">
+    <Compile Include="container.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\Container.py">
+    <Compile Include="metadata.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\Metadata.py">
+    <Compile Include="Models\psi.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\PSINode.py">
+    <Compile Include="vnode.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\User.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Models\VersionNode.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Models\VersionVector.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Models\VitrualBlock.py">
+    <Compile Include="versions.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Models\__init__.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MysqlConnector\Connector.py">
+    <Compile Include="operation_transform.py" />
+    <Compile Include="utils.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MysqlConnector\__init__.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="OT\Operation.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="OT\OTFunctions.py" />
-    <Compile Include="OT\__init__.py">
+    <Compile Include="variables.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Cache\" />
     <Folder Include="GRPCServer\" />
     <Folder Include="Models\" />
-    <Folder Include="MysqlConnector\" />
-    <Folder Include="OT\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="GRPCServer\GRPCServer.proto" />

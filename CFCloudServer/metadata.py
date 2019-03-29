@@ -1,13 +1,14 @@
 import pickle
 import json
 import os
+import copy
 import config
 import versions
 import server_init
 
 class metadata(object):
 
-    def __init__(self, attributes, path, _versions = None):
+    def __init__(self, attributes, path, _versions = None, optype = None):
         # attributes: 
         #   tag                 string      ('file', 'folder')
         #   name                string
@@ -24,7 +25,7 @@ class metadata(object):
         self.attributes = attributes
         if _versions is None:
             if self.attributes['tag'] == 'file':
-                self.versions = versions.versions()
+                self.versions = versions.versions(optype)
             else:
                 self.versions = None
         else:
@@ -43,6 +44,15 @@ class metadata(object):
     def get_metadata(self):
         # return a json string that can be directly return to client
         return json.dumps(self.attributes)
+
+    def get_metadata_by_version(self, rev):
+        attr = copy.deepcopy(self.attributes)
+        attr['rev'] = rev
+        (size, modified_time, modifier) = self.versions.get_rev_metadata(rev)
+        attr['size'] = size
+        attr['modified_time'] = modified_time
+        attr['modifier'] = modifier
+        return json.dumps(attr)
 
     def get_hashlist(self, rev = None):
         if self.attributes['tag'] == 'folder':
@@ -72,71 +82,29 @@ class metadata(object):
         else:
             return self._versions.get_size_hashs()
 
-
-
-
-
-
-
-
-    '''
-    def create_temp_version(self, modifier, modified_time, size, base_rev):
-        self.lock.acquire()
-        rev = self.versions.add_temporary_node(modifier, modified_time, size, base_rev)
-        if base_rev is None:
-            haselist = []
-        else:
-            r, hashlist = self.versions.read_hash_list(base_rev)
+    def add_vnode(self, node):
+        hashs, datas = self.versions.add_vnode(node)
+        if hashs is not None:
+            psid = server_init._psi.get_psid_by_filepath(self.path[:-9])
+            pnode = server_init._psi_cache.get_usable_node(psid)
+            pnode.acquire_lock()
+            for i in range(0, len(hashs)):
+                r_psid = pnode.obj.write_block(self.path[:-9], hashs[i], datas[i])
+                if not r_psid == psid:
+                    pnode.release_lock()
+                    psid = r_psid
+                    pnode = server_init._psi_cache.get_usable_node(psid)
+                    pnode.acquire_lock()
+            pnode.release_lock()
+        self.set_attribute('rev', self.versions.rev)
+        (size, modified_time, modifier) = self.versions.get_rev_metadata()
+        self.set_attribute('size', size)
+        self.set_attribute('modified_time', modified_time)
+        self.set_attribute('modifier', modifier)
         self.dirty = True
-        self.lock.release()
-        return rev, hashlist
 
-    def add_vitrual_block(self, rev, block):
-        self.lock.acquire()
-        self.versions.add_vitrual_block(rev, block)
-        self.dirty = True
-        self.lock.release()
-
-    def add_vitrual_blocks(self, rev, blocks):
-        self.lock.acquire()
-        self.versions.add_vitrual_blocks(rev, blocks)
-        self.dirty = True
-        self.lock.release()
-
-    def read_block(self, rev, index):
-        self.lock.acquire()
-        data = self.versions.read_block(index, rev)
-        self.lock.release()
-        return data
-
-    def read_blocks(self, rev, indexs):
-        self.lock.acquire()
-        for index in indexs:
-            yield self.versions.read_block(index, rev)
-        self.lock.release()
-
-    def set_readable(self, rev):
-        self.lock.acquire()
-        version, size, time, modifier = self.versions.set_readable(rev)
-        self.attributes['rev'] = version
-        self.attributes['size'] = size
-        self.attributes['modified_time'] = time
-        self.attributes['modifier'] = modifier
-        self.dirty = True
-        self.lock.release()
-
-    def share(self, user):
-        self.lock.acquire()
-        self.attributes['is_shared'] = True
-        self.attributes['sharedusers'].append(user)
-        self.dirty = True
-        self.lock.release()
-    '''
-
-
-
-
-
+    def read(self, rev = None):
+        return self.versions.read(rev)
 
     def to_dict(self):
         dict = {}
@@ -165,4 +133,4 @@ def load(path):
         return None
 
 def create(dict):
-    return metadata(dict['attributes'], dict['path'])
+    return metadata(dict['attributes'], dict['path'], optype=dict['optype'])

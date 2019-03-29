@@ -141,12 +141,13 @@ class operation_transform(object):
         l2 = backforward_oplist(l2)
         for o in l1:
             l2 = transform_op_oplist(o, l2)
+        l3 = []
         while len(l2) > 0:
             o = l2[0]
             l2 = l2[1:]
             l2 = transform_op_oplist(o, l2)
-            l1.append(o)
-        return l1
+            l3.append(o)
+        return l3
 
     # execute operation
     def execute_oplist(self, b, l):

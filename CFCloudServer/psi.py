@@ -1,4 +1,6 @@
 import sqlite3
+import config
+import os
 
 class psi(object):
 
@@ -33,7 +35,11 @@ class psi(object):
         self.conn.commit()
 
     def get_psid_by_filepath(self, filepath):
-        sql = "SELECT * FROM PSI WHERE FILEPATH = '%s'" % (filepath)
+        sql = "SELECT * FROM PSI WHERE FILEPATH IN ("
+        while not filepath == config.efs_file_root:
+            sql = sql + "'%s', " % (filepath)
+            filepath = os.path.dirname(filepath)
+        sql = sql + "'%s')" % (config.efs_file_root)
         ret = self.conn.cursor().execute(sql).fetchone()
         if ret is not None:
             return ret[1]

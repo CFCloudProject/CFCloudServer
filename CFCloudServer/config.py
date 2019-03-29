@@ -38,3 +38,10 @@ container_max_size = 4 * 1024 * 1024
 container_cache_max_capacity = 50
 metadata_cache_max_capacity = 400
 psi_cache_max_capacity = 50
+
+server_user = { 
+    'user_id': -1, 
+    'email': 'server@server', 
+    'firstname': 'server', 
+    'lastname': 'server' 
+    }

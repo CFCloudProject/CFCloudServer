@@ -77,3 +77,23 @@ class block_index():
            return { 'block_id': ret[0], 'container_id': ret[1], 'offset': ret[2], 'size': ret[3] }
         except:
            return None
+
+    def select_list(self, ids):
+        sql = "SELECT * FROM `b_index` WHERE `block_id` IN ("
+        for block_id in ids:
+            sql = sql + "'%s', " % (block_id)
+        sql = sql[:-2] + ")"
+        try:
+           self.cursor.execute(sql)
+           ret = self.conn.cursor.fetchall()
+           if ret is None:
+               return None
+           blocks = {}
+           for row in ret:
+               if blocks.get(row[1]) is None:
+                   blocks[row[1]] = [{ 'block_id': row[0], 'container_id': row[1], 'offset': row[2], 'size': row[3] }]
+               else:
+                   blocks[row[1]].append({ 'block_id': row[0], 'container_id': row[1], 'offset': row[2], 'size': row[3] })
+            return blocks
+        except:
+           return None

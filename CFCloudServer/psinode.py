@@ -24,11 +24,13 @@ class psinode(object):
         w_ret = cnode.obj.write_block(block_id, data)
         if w_ret is not None:
             server_init._block_index.insert(w_ret)
+            r_psid = self.id
         else:
             # the container has reached max size; 
             # need to split psi node (for type 'a' and 'b')
             # or add new container (for type 'c')
             psid = self.split(path, cnode)
+            r_psid = psid
             if psid == self.id:
                 self.write_block(path, block_id, data)
             else:
@@ -39,6 +41,7 @@ class psinode(object):
                 pnode.obj.write_block(path, block_id, data)
                 pnode.release_lock()
         cnode.release_lock()
+        return r_psid
 
     # return the id of the psi node that the data will be write to
     def split(self, path, cnode):
@@ -62,6 +65,7 @@ class psinode(object):
                 while not os.path.dirname(path) == singlepathset:
                     path = os.path.dirname(path)
                 #        for type 'a', change its path to its child set
+                server_init._psi.delete_by_filepath(self.paths[0])
                 self.paths = []
                 for child in os.listdir(singlepathset):
                     if child == '.metadata':
@@ -95,6 +99,9 @@ class psinode(object):
             # forth, split the list to two parts
             #        the largest one is reserved in the current psinode,
             #        remains are add to the small psinode one by one
+            psid = str(uuid.uuid1())
+            pnode = server_init._psi_cache.get_usable_node(psid)
+            pnode.acquire_lock()
             size_left = 0
             size_right = 0
             paths_left = []
@@ -103,16 +110,26 @@ class psinode(object):
             for t in list_for_sort:
                 if size_left <= size_right:
                     paths_left.append(t['path'])
+                    if self.type == 'a':
+                        server_init._psi.insert(t['path'], self.id)
+                    else:
+                        server_init._psi.update(t['path'], self.id)
                     size_left += t['size']
                     hashs_to_reserve.extend(t['hashs'])
                 else:
                     paths_right.append(t['path'])
+                    if self.type == 'a':
+                        server_init._psi.insert(t['path'], psid)
+                    else:
+                        server_init._psi.update(t['path'], psid)
                     size_right += t['size']
             if not path in self.paths:
                 if size_left <= size_right:
                     path_left.append(path)
+                    server_init._psi.insert(path, self.id)
                 else:
                     path_right.append(path)
+                    server_init._psi.insert(path, psid)
             # fifth, using the splited hashs to split the container (argument cnode)
             #        and get the id of the new container
             (container_id, blocks) = cnode.obj.split(hashs_to_reserve)
@@ -127,15 +144,12 @@ class psinode(object):
             else:
                 self.type = 'c'
             self.dirty = True
-            psid = str(uuid.uuid1())
             if len(paths_right) > 1:
                 type = 'b'
             elif os.path.isdir(paths_right[0]):
                 type = 'a'
             else:
                 type = 'c'
-            pnode = server_init._psi_cache.get_usable_node(psid)
-            pnode.acquire_lock()
             pnode.create({
                 'type': type,
                 'id': psid,

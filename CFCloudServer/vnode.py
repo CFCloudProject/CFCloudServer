@@ -1,4 +1,4 @@
-
+import server_init
 
 class vnode(object):
     
@@ -23,6 +23,16 @@ class vnode(object):
         #   ops                 list of string  (hashs of op file blocks)
         self.ops = ops
 
+    def set_attribute(self, name, attr):
+        self.attributes[name] = attr
+
+    def get_attribute(self, name):
+        attr = self.attributes[name]
+        return attr
+
+    def get_metadata(self):
+        return self.attributes['size'], self.attributes['modified_time'], self.attributes['modifier']
+
     def get_hashlist(self):
         return self.hashs
 
@@ -32,40 +42,23 @@ class vnode(object):
         else:
             return self.attributes['op_size'], self.ops
 
-    '''
-    def add_vitrual_block(self, block):
-        self.lock.acquire()
-        self.blocks.append(block)
-        self.lock.release()
-
-    def read_data(self, block_index):
-        self.lock.acquire()
-        b, o, c = self.blocks[block_index].read_data()
-        self.lock.release()
-        if c is not None:
-            return None, None, c
+    def read(self):
+        if self.is_checkpoint:
+            hashs = self.hashs
         else:
-            return b, o, c
-
-    def isTemporary(self):
-        self.lock.acquire()
-        temporary = self.temporary
-        self.lock.release()
-        return temporary
-
-    def setTemporary(self, t):
-        self.lock.acquire()
-        self.temporary = t
-        self.lock.release()
-
-    def read_hash_list(self):
-        self.lock.acquire()
-        list = []
-        for vblock in self.blocks:
-            list.append(vblock.get_hash())
-        self.lock.release()
-        return list
-    '''
+            hashs = self.ops
+        blocks = server_init._block_index.select_list(hashs)
+        datas = {}
+        for key in blocks.keys():
+            cnode = server_init._container_cache.get_usable_node(key)
+            cnode.acquire_lock()
+            for block in blocks[key]:
+                datas[block['block_id']] = cnode.obj.read_block(block)
+            cnode.release_lock()
+        data = b''
+        for hash in hashs:
+            data = data + datas[hash]
+        return data
 
 def from_dict(dict):
     return vnode(dict['attributes'], 

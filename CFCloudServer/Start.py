@@ -3,6 +3,7 @@ from concurrent import futures
 import grpc
 import time
 import config
+import server_init
 
 def server_start():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers = 50))
@@ -16,4 +17,5 @@ def server_start():
         server.stop(0)
 
 if __name__ == '__main__':
+    server_init.init()
     server_start()

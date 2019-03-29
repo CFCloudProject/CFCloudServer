@@ -7,7 +7,7 @@ class cnode(object):
         self.name = name
         self.empty = True
         self.obj = None
-        self.lock = threading.Lock()
+        self.lock = threading.RLock()
 
     def acquire_lock(self):
         self.lock.acquire()
@@ -21,13 +21,10 @@ class cnode(object):
         self.obj = __import__(self.name).load(arg)
         self.empty = False
 
-    def create(self, arg = None):
+    def create(self, arg):
         if not self.empty:
             self.obj.write_back()
-        if key is None:
-            self.obj = __import__(self.name).create()
-        else:
-            self.obj = __import__(self.name).create(arg)
+        self.obj = __import__(self.name).create(arg)
         self.empty = False
 
 class cache(object):
@@ -77,7 +74,6 @@ class cache(object):
             self.table[key] = node
         node.key = key
         self.__visit(node)
-        node.acquire_lock()
         self.lock.release()
         return node
 

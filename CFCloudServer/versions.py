@@ -12,6 +12,29 @@ class versions(object):
             rev = self.r_rev
         return self.vector[rev].get_hastlist()
 
+    def get_size_hashs(self):
+        size = 0
+        hashs = []
+        for version in self.vector:
+            (_size, _hashs) = version.get_size_hashs()
+            size += _size
+            hashs.extend(_hashs)
+        return { 'size': size, 'hashs': hashs }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     '''
     def add_temporary_node(self, modifier, modified_time, size, base_rev):
         self.lock.acquire()

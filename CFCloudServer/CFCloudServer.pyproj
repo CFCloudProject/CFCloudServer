@@ -27,6 +27,9 @@
     <Compile Include="cdc.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="psinode.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="user_session.py">
       <SubType>Code</SubType>
     </Compile>
@@ -51,7 +54,7 @@
     <Compile Include="metadata.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\psi.py">
+    <Compile Include="psi.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="vnode.py">
@@ -60,20 +63,16 @@
     <Compile Include="versions.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\__init__.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="operation_transform.py" />
     <Compile Include="utils.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="variables.py">
+    <Compile Include="server_init.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="GRPCServer\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="GRPCServer\GRPCServer.proto" />

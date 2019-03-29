@@ -26,6 +26,10 @@ mysql_config = {
 
 # sqlite3 config
 sqlite3_db_path = efs_root + '/cfcloud.db'
+psi_db_path = efs_root + '/psi.db'
+
+# psi config
+psi_root = efs_root + '/psi'
 
 # container config
 container_max_size = 4 * 1024 * 1024
@@ -33,3 +37,4 @@ container_max_size = 4 * 1024 * 1024
 # cache config
 container_cache_max_capacity = 50
 metadata_cache_max_capacity = 400
+psi_cache_max_capacity = 50

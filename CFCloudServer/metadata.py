@@ -3,6 +3,7 @@ import json
 import os
 import config
 import versions
+import server_init
 
 class metadata(object):
 
@@ -47,6 +48,29 @@ class metadata(object):
         if self.attributes['tag'] == 'folder':
             return None
         return self.versions.get_hashlist(rev)
+
+    # get total size and all hashs of its all versions (file)
+    # or the sum of its all children (folder)
+    def get_size_hashs(self):
+        if self.attributes['tag'] == 'folder':
+            size = 0
+            hashs = []
+            path = self.path[:-10]
+            for child in os.listdir(path):
+                if child == '.metadata':
+                    continue
+                elif child.endswith('.metadata'):
+                    child_path = '/'.join([path, child])
+                else:
+                    child_path = '/'.join([path, child]) + '.metadata'
+                mnode = server_init._metadata_cache.get_usable_node(meta_path)
+                mnode.acquire_lock()
+                t = mnode.obj.get_size_hashs()
+                size += t['size']
+                hashs.extend(t['hashs'])
+            return { 'size': size, 'hashs': hashs }
+        else:
+            return self._versions.get_size_hashs()
 
 
 

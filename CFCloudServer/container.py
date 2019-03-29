@@ -1,29 +1,17 @@
 import config
+import server_init
 import utils
-import variables
 
 class container(object):
 
-    def __init__(self, container_id = None):
-        if container_id is None:
-            self.id = utils.get_new_container_id()
+    def __init__(self, container_id, data = None):
+        self.id = container_id
+        if data is None:
             self.data = b''
             self.dirty = True
         else:
-            self.id = container_id
+            self.data = data
             self.dirty = False
-
-    def write_back(self):
-        key = 'Container_' + str(self.id)
-        if not self.dirty:
-            return True
-        else:
-            ret = variables._s3_connector.upload(key, self.data)
-            if ret:
-                self.dirty = False
-                return True
-            else:
-                return False
 
     def read_block(self, block):
         if block['container_id'] != self.id:
@@ -57,14 +45,69 @@ class container(object):
             'size': size 
             }
 
+    # hashs: hash of blocks that will be reserved in the current container
+    def split(self, hashs):
+        # create new container
+        container_id = utils.get_new_container_id()
+        cnode = server_init._container_cache.get_usable_node(container_id)
+        cnode.acquire_lock()
+        cnode.create(container_id)
+        # split data
+        data = self.data
+        self.data = b''
+
+        offset_cur = 0
+        offset_new = 0
+        blocks_to_update = []
+        pos = 0
+
+        while pos < len(data):
+            hash = data[pos : pos + 20].hex()
+            size = data[pos + 20] * 256 + data[pos + 21]
+            if hash in hashs:
+                self.data = self.data + data[pos : pos + size + 22]
+                blocks_to_update.append({
+                    'block_id': hash,
+                    'container_id': self.id,
+                    'offset': offset_cur,
+                    'size': size
+                    })
+                offset_cur += size + 22
+            else:
+                cnode.obj.data = cnode.obj.data + data[pos : pos + size + 22]
+                blocks_to_update.append({
+                    'block_id': hash,
+                    'container_id': container_id,
+                    'offset': offset_new,
+                    'size': size
+                    })
+                offset_new += size + 22
+            pos += size + 22
+
+        data = None
+        cnode.release_lock()
+        self.dirty = True
+        return container_id, blocks_to_update
+    
+    def write_back(self):
+        key = 'Container_' + str(self.id)
+        if not self.dirty:
+            return True
+        else:
+            ret = server_init._s3_connector.upload(key, self.data)
+            if ret:
+                self.dirty = False
+                return True
+            else:
+                return False
+
 def load(container_id):
     key = 'Container_' + str(container_id)
-    data = variables._s3_connector.download(key)
+    data = server_init._s3_connector.download(key)
     if data is None:
         return None
-    _container = container(container_id)
-    _container.data = data
+    _container = container(container_id, data)
     return _container
 
-def create():
-    return container()
+def create(container_id):
+    return container(container_id)

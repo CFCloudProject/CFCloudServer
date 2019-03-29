@@ -5,6 +5,7 @@ class vnode(object):
     def __init__(self, attributes, is_checkpoint, hashs, ops):
         # attributes: 
         #   size                int
+        #   op_size             int
         #   base_rev            int
         #   rev                 int
         #   modifier            dict
@@ -24,6 +25,12 @@ class vnode(object):
 
     def get_hashlist(self):
         return self.hashs
+
+    def get_size_hashs(self):
+        if self.is_checkpoint:
+            return self.attributes['size'], self.hashs
+        else:
+            return self.attributes['op_size'], self.ops
 
     '''
     def add_vitrual_block(self, block):

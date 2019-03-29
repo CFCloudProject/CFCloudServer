@@ -3,7 +3,7 @@ import json
 import os
 import math
 import operation_transform
-import variables
+import server_init
 import utils
 from . import GRPCServer_pb2, GRPCServer_pb2_grpc
 
@@ -11,7 +11,7 @@ from . import GRPCServer_pb2, GRPCServer_pb2_grpc
 class GRPCServer_impl(GRPCServer_pb2_grpc.GRPCServerServicer):
 
     def Register(self, request, context):
-        user = variables._user_session.register(request.Email, request.Password, request.FirstName, request.LastName)
+        user = server_init._user_session.register(request.Email, request.Password, request.FirstName, request.LastName)
         if user is None:
             return GRPCServer_pb2.RegisterResult(Succeed = False, Error = 1)
         else:
@@ -19,7 +19,7 @@ class GRPCServer_impl(GRPCServer_pb2_grpc.GRPCServerServicer):
             return GRPCServer_pb2.RegisterResult(Succeed = True, Error = 0)
 
     def Login(self, request, context):
-        login_result = variables._user_session.login(request.Email, request.Password)
+        login_result = server_init._user_session.login(request.Email, request.Password)
         if login_result['code'] == 0:
             return GRPCServer_pb2.LoginResult(
                 Succeed = True, 
@@ -37,7 +37,7 @@ class GRPCServer_impl(GRPCServer_pb2_grpc.GRPCServerServicer):
 
     def Logout(self, request, context):
         session_id = request.SessionId
-        variables._user_session.logout(session_id)
+        server_init._user_session.logout(session_id)
         return GRPCServer_pb2.StringResponse(PayLoad = '')
 
     def HeartBeat(self, request, context):

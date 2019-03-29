@@ -80,3 +80,23 @@ class cache(object):
         node.acquire_lock()
         self.lock.release()
         return node
+
+class hashcache(object):
+
+    def __init__(self):
+        self.table = {}
+
+    def search(self, hash):
+        t = self.table
+        for char in hash:
+            t = t.get(char)
+            if t is None:
+                return False
+        return True
+
+    def insert(self, hash):
+        t = self.table
+        for char in hash:
+            if t.get(char) is None:
+                t[char] = {}
+            t = t[char]

@@ -24,6 +24,9 @@
     <Compile Include="cache.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="cdc.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="user_session.py">
       <SubType>Code</SubType>
     </Compile>

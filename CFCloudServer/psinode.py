@@ -19,7 +19,7 @@ class psinode(object):
         cnode = server_init._container_cache.get_usable_node(container_id)
         cnode.acquire_lock()
         # if the container in the container cache node is not the target one, reload
-        if not cnode.obj.id == container_id:
+        if cnode.empty or not cnode.obj.id == container_id:
             cnode.load(container_id)
         w_ret = cnode.obj.write_block(block_id, data)
         if w_ret is not None:
@@ -32,15 +32,16 @@ class psinode(object):
             psid = self.split(path, cnode)
             r_psid = psid
             if psid == self.id:
-                self.write_block(path, block_id, data)
+                r_psid = self.write_block(path, block_id, data)
             else:
                 pnode = server_init._psi_cache.get_usable_node(psid)
                 pnode.acquire_lock()
-                if not pnode.obj.id == psid:
+                if pnode.empty or not pnode.obj.id == psid:
                     pnode.load(psid)
-                pnode.obj.write_block(path, block_id, data)
+                r_psid = pnode.obj.write_block(path, block_id, data)
                 pnode.release_lock()
         cnode.release_lock()
+        server_init._hash_cache.insert(block_id)
         return r_psid
 
     # return the id of the psi node that the data will be write to
@@ -88,7 +89,7 @@ class psinode(object):
                     meta_path = _path + '/.metadata'
                 mnode = server_init._metadata_cache.get_usable_node(meta_path)
                 mnode.acquire_lock()
-                if not mnode.obj.path == meta_path:
+                if mnode.empty or not mnode.obj.path == meta_path:
                     mnode.load(meta_path)
                 t = mnode.obj.get_size_hashs()
                 t['path'] = _path
@@ -145,13 +146,13 @@ class psinode(object):
                 self.type = 'c'
             self.dirty = True
             if len(paths_right) > 1:
-                type = 'b'
+                ty = 'b'
             elif os.path.isdir(paths_right[0]):
-                type = 'a'
+                ty = 'a'
             else:
-                type = 'c'
+                ty = 'c'
             pnode.create({
-                'type': type,
+                'type': ty,
                 'id': psid,
                 'paths': paths_right, 
                 'container_ids': [container_id]

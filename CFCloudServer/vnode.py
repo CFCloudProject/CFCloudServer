@@ -2,14 +2,14 @@ import server_init
 
 class vnode(object):
     
-    def __init__(self, attributes, is_checkpoint, hashs, ops):
+    def __init__(self, attributes, is_checkpoint, hashs, offsets, ops):
         # attributes: 
         #   size                int
         #   op_size             int
         #   base_rev            int
         #   rev                 int
         #   modifier            dict
-        #   modified_time       int             (UTC ticks)
+        #   modified_time       int             (Unix ticks)
         self.attributes = attributes
 
         #   is_checkpoint       bool            (if is checkpoint, ops is None 
@@ -19,6 +19,7 @@ class vnode(object):
         #   hashs               list of string  (hex mode hash which len is 40, 
         #                                        8 for adler32 and 32 for md5)
         self.hashs = hashs
+        self.offsets = offsets
 
         #   ops                 list of string  (hashs of op file blocks)
         self.ops = ops
@@ -36,6 +37,9 @@ class vnode(object):
     def get_hashlist(self):
         return self.hashs
 
+    def get_offsets(self):
+        return self,offsets
+
     def get_size_hashs(self):
         if self.is_checkpoint:
             return self.attributes['size'], self.hashs
@@ -52,6 +56,8 @@ class vnode(object):
         for key in blocks.keys():
             cnode = server_init._container_cache.get_usable_node(key)
             cnode.acquire_lock()
+            if cnode.empty or not cnode.obj.id == key:
+                cnode.load(key)
             for block in blocks[key]:
                 datas[block['block_id']] = cnode.obj.read_block(block)
             cnode.release_lock()
@@ -64,6 +70,7 @@ def from_dict(dict):
     return vnode(dict['attributes'], 
                  dict['is_checkpoint'], 
                  dict['hashs'], 
+                 dict['offsets'],
                  dict['ops'])
 
 

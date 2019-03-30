@@ -15,8 +15,8 @@ class metadata(object):
         #   fullpath            string
         #   size                int
         #   rev                 int         (start from 0)
-        #   creation_time       int         (UTC ticks)
-        #   modified_time       int         (UTC ticks)
+        #   creation_time       int         (Unix ticks)
+        #   modified_time       int         (Unix ticks)
         #   modifier            dict        (include user_id, email, firstname, lastname)
         #   owner               dict        (include user_id, email, firstname, lastname)
         #   shared_users        list of dict
@@ -59,6 +59,11 @@ class metadata(object):
             return None
         return self.versions.get_hashlist(rev)
 
+    def get_offsets(self, rev = None):
+        if self.attributes['tag'] == 'folder':
+            return None
+        return self.versions.get_offsets(rev)
+
     # get total size and all hashs of its all versions (file)
     # or the sum of its all children (folder)
     def get_size_hashs(self):
@@ -75,6 +80,8 @@ class metadata(object):
                     child_path = '/'.join([path, child]) + '.metadata'
                 mnode = server_init._metadata_cache.get_usable_node(meta_path)
                 mnode.acquire_lock()
+                if mnode.empty or not mnode.obj.path == child_path:
+                    mnode.load(child_path)
                 t = mnode.obj.get_size_hashs()
                 size += t['size']
                 hashs.extend(t['hashs'])
@@ -88,13 +95,18 @@ class metadata(object):
             psid = server_init._psi.get_psid_by_filepath(self.path[:-9])
             pnode = server_init._psi_cache.get_usable_node(psid)
             pnode.acquire_lock()
+            if pnode.empty or not pnode.obj.id == psid:
+                pnode.load(psid)
             for i in range(0, len(hashs)):
-                r_psid = pnode.obj.write_block(self.path[:-9], hashs[i], datas[i])
-                if not r_psid == psid:
-                    pnode.release_lock()
-                    psid = r_psid
-                    pnode = server_init._psi_cache.get_usable_node(psid)
-                    pnode.acquire_lock()
+                if not server_init._hash_cache.search(hashs[i]):
+                    r_psid = pnode.obj.write_block(self.path[:-9], hashs[i], datas[i])
+                    if not r_psid == psid:
+                        pnode.release_lock()
+                        psid = r_psid
+                        pnode = server_init._psi_cache.get_usable_node(psid)
+                        pnode.acquire_lock()
+                        if pnode.empty or not pnode.obj.id == psid:
+                            pnode.load(psid)
             pnode.release_lock()
         self.set_attribute('rev', self.versions.rev)
         (size, modified_time, modifier) = self.versions.get_rev_metadata()

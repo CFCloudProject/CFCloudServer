@@ -34,7 +34,7 @@ def create_user_namesapce(user_id):
         os.mkdir(namespace)
 
 def get_true_path(user, path):
-    user_root = config.efs_file_root + '/user_' + str(user.user_id)
+    user_root = config.efs_file_root + '/user_' + str(user['user_id'])
     pos = path.find('/', 1)
     if pos != -1:
         linkpath = user_root + path[:path.find('/', 1)] + '.li'

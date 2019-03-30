@@ -143,5 +143,5 @@ class cdc(object):
             length = chunk['length']
             chunkdata = self.data[start : start + length]
             hash = utils.adler32(chunkdata) + utils.md5(chunkdata)
-            yield { 'index': self.index, 'hash': hash, 'data': chunkdata }
+            yield { 'index': self.index, 'start': start, 'hash': hash, 'data': chunkdata }
             self.index += 1

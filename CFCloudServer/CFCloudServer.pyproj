@@ -34,18 +34,15 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="config.py" />
-    <Compile Include="GRPCServer\GRPCServer_pb2.py" />
-    <Compile Include="GRPCServer\GRPCServer_pb2_grpc.py" />
+    <Compile Include="GRPCServer_pb2.py" />
+    <Compile Include="GRPCServer_pb2_grpc.py" />
     <Compile Include="block_index.py" />
     <Compile Include="diff_match_patch.py" />
     <Compile Include="s3connector.py" />
     <Compile Include="start.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="GRPCServer\GRPCServer_impl.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="GRPCServer\__init__.py">
+    <Compile Include="GRPCServer_impl.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="container.py">
@@ -72,10 +69,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="GRPCServer\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="GRPCServer\GRPCServer.proto" />
+    <Content Include="GRPCServer.proto" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

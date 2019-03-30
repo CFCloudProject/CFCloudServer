@@ -59,6 +59,16 @@ class cache(object):
             self.head.prev = _node
             self.head = _node
 
+    def is_in_cache(self, key):
+        self.lock.acquire()
+        node = table.get(key)
+        if node is None:
+            self.lock.release()
+            return False
+        else:
+            self.lock.release()
+            return True
+
     def get_usable_node(self, key):
         self.lock.acquire()
         node = table.get(key)

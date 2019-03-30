@@ -22,6 +22,11 @@ class versions(object):
             rev = self.rev
         return self.vector[rev].get_hastlist()
 
+    def get_offsets(self, rev = None):
+        if rev is None:
+            rev = self.rev
+        return self.vector[rev].get_offsets()
+
     def get_size_hashs(self):
         size = 0
         hashs = []
@@ -66,10 +71,12 @@ class versions(object):
         if self.optype == 's':
             data = data.encode()
         hashs = []
+        offsets = []
         chunker = cdc.cdc(data)
         chunker.chunking()
         for chunk in chunker.getchunks():
             hashs.append(chunk['hash'])
+            offsets.append(chunk['start'])
         ops = []
         chunker = cdc.cdc(op_data)
         chunker.chunking()
@@ -77,7 +84,7 @@ class versions(object):
         for chunk in chunker.getchunks():
             data_to_store.append(chunk['data'])
             ops.append(chunk['hash'])
-        node = vnode.vnode({}, False, hashs, ops)
+        node = vnode.vnode({}, False, hashs, offsets, ops)
         node.set_attribute('size', len(data))
         node.set_attribute('opsize', len(op_data))
         node.set_attribute('base_rev', self.rev - 1)
@@ -111,6 +118,9 @@ class versions(object):
                 return ot.execute_oplist(base, ot.bytes2oplist(op))
         else:
             return base
+
+    def next_is_checkpoint(self):
+        return self.rev - self.checkpoints[len(self.checkpoints) - 1] > 4
 
     def to_dict(self):
         dict = {}

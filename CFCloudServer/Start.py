@@ -1,9 +1,10 @@
-from GRPCServer import *
 from concurrent import futures
 import grpc
 import time
 import config
 import server_init
+import GRPCServer_impl
+import GRPCServer_pb2_grpc
 
 def server_start():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers = 50))

@@ -29,11 +29,6 @@ class GRPCServerStub(object):
         request_serializer=GRPCServer__pb2.EmptyRequest.SerializeToString,
         response_deserializer=GRPCServer__pb2.StringResponse.FromString,
         )
-    self.HeartBeat = channel.unary_unary(
-        '/GRPCServer.GRPCServer/HeartBeat',
-        request_serializer=GRPCServer__pb2.EmptyRequest.SerializeToString,
-        response_deserializer=GRPCServer__pb2.StringResponse.FromString,
-        )
     self.Share = channel.unary_unary(
         '/GRPCServer.GRPCServer/Share',
         request_serializer=GRPCServer__pb2.ShareRequest.SerializeToString,
@@ -69,10 +64,10 @@ class GRPCServerStub(object):
         request_serializer=GRPCServer__pb2.PathRequest.SerializeToString,
         response_deserializer=GRPCServer__pb2.StringResponse.FromString,
         )
-    self.DownloadBlock = channel.stream_stream(
+    self.DownloadBlock = channel.stream_unary(
         '/GRPCServer.GRPCServer/DownloadBlock',
         request_serializer=GRPCServer__pb2.BlockRequest.SerializeToString,
-        response_deserializer=GRPCServer__pb2.BlockResponse.FromString,
+        response_deserializer=GRPCServer__pb2.StringResponse.FromString,
         )
     self.GetMetadata = channel.unary_unary(
         '/GRPCServer.GRPCServer/GetMetadata',
@@ -105,13 +100,6 @@ class GRPCServerServicer(object):
     raise NotImplementedError('Method not implemented!')
 
   def Logout(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
-    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-    context.set_details('Method not implemented!')
-    raise NotImplementedError('Method not implemented!')
-
-  def HeartBeat(self, request, context):
     # missing associated documentation comment in .proto file
     pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -206,11 +194,6 @@ def add_GRPCServerServicer_to_server(servicer, server):
           request_deserializer=GRPCServer__pb2.EmptyRequest.FromString,
           response_serializer=GRPCServer__pb2.StringResponse.SerializeToString,
       ),
-      'HeartBeat': grpc.unary_unary_rpc_method_handler(
-          servicer.HeartBeat,
-          request_deserializer=GRPCServer__pb2.EmptyRequest.FromString,
-          response_serializer=GRPCServer__pb2.StringResponse.SerializeToString,
-      ),
       'Share': grpc.unary_unary_rpc_method_handler(
           servicer.Share,
           request_deserializer=GRPCServer__pb2.ShareRequest.FromString,
@@ -246,10 +229,10 @@ def add_GRPCServerServicer_to_server(servicer, server):
           request_deserializer=GRPCServer__pb2.PathRequest.FromString,
           response_serializer=GRPCServer__pb2.StringResponse.SerializeToString,
       ),
-      'DownloadBlock': grpc.stream_stream_rpc_method_handler(
+      'DownloadBlock': grpc.stream_unary_rpc_method_handler(
           servicer.DownloadBlock,
           request_deserializer=GRPCServer__pb2.BlockRequest.FromString,
-          response_serializer=GRPCServer__pb2.BlockResponse.SerializeToString,
+          response_serializer=GRPCServer__pb2.StringResponse.SerializeToString,
       ),
       'GetMetadata': grpc.unary_unary_rpc_method_handler(
           servicer.GetMetadata,

@@ -8,6 +8,7 @@ import server_init
 import utils
 import vnode
 import cdc
+import config
 import GRPCServer_pb2
 import GRPCServer_pb2_grpc
 
@@ -44,20 +45,122 @@ class GRPCServer_impl(GRPCServer_pb2_grpc.GRPCServerServicer):
         server_init._user_session.logout(session_id)
         return GRPCServer_pb2.StringResponse(PayLoad = '')
 
-    def HeartBeat(self, request, context):
-        return super().HeartBeat(request, context)
-
     def Share(self, request, context):
-        return super().Share(request, context)
+        jstr = json.dumps({ 'error': 'share not developed'})
+        return GRPCServer_pb2.StringResponse(PayLoad = jstr)
 
     def CreateFolder(self, request, context):
-        return super().CreateFolder(request, context)
+        session_id = request.SessionId
+        user = server_init._user_session.get_user_by_session(session_id)
+        truepath = utils.get_true_path(user, request.Path)
+        modified_time = request.ModifiedTime
+        paths_to_create = []
+        while not os.path.exists(truepath):
+            paths_to_create.append(truepath)
+            truepath = os.path.dirname(truepath)
+        paths_to_create.reverse()
+        for path in paths_to_create:
+            os.mkdir(path)
+            mnode = server_init._metadata_cache.get_usable_node(path + '/.metadata')
+            mnode.acquire_lock()
+            attrs = {}
+            attrs['tag'] = 'folder'
+            attrs['name'] = os.path.basename(path)
+            fullname = path[len(config.efs_file_root) + 1:]
+            fullname = fullname[fullname.find('/'):]
+            attrs['fullname'] = fullname
+            attrs['creation_time'] = modified_time
+            attrs['owner'] = user
+            attrs['shared_users'] = [user]
+            attrs['is_shared'] = False
+            attrs['is_deleted'] = False
+            arguments = {}
+            arguments['attributes'] = attrs
+            arguments['path'] = path + '/.metadata'
+            arguments['ottype'] = ''
+            mnode.create(arguments)
+            mnode.release_lock()
+        truepath = truepath + '/.metadata'
+        mnode = server_init._metadata_cache.get_usable_node(truepath)
+        mnode.acquire_lock()
+        if mnode.empty or not mnode.obj.path == truepath:
+            mnode.load(truepath)
+        jstr = json.dumps(mnode.obj.get_metadata())
+        mnode.release_lock()
+        return GRPCServer_pb2.StringResponse(PayLoad = jstr)
 
     def Rename(self, request, context):
-        return super().Rename(request, context)
+        session_id = request.SessionId
+        user = server_init._user_session.get_user_by_session(session_id)
+        path = request.OldPath
+        newpath = request.Path
+        user_root = config.efs_file_root + '/user_' + str(user['user_id'])
+        pos = path.find('/', 1)
+        if pos != -1:
+            linkpath = user_root + path[:path.find('/', 1)] + '.li'
+            if os.path.exists(linkpath):
+                fp = open(path, 'r')
+                per = fp.readline()
+                fp.close()
+                if pos != -1:
+                    truepath = per + path[path.find('/', 1):]
+                else:
+                    truepath = per
+            else:
+                truepath = user_root + path
+        else:
+            linkpath = user_root + path + '.li'
+            if os.path.exists(linkpath):
+                os.rename(linkpath, user_root + newpath + '.li')
+                truepath = None
+            else:
+                truepath = user_root + path
+        if truepath is not None:
+            if os.isdir(truepath):
+                truepath = truepath + '/.metadata'
+            else:
+                truepath = truepath + '.metadata'
+            mnode = server_init._metadata_cache.get_usable_node(truepath)
+            mnode.acquire_lock()
+            if mnode.empty or not mnode.obj.path == truepath:
+                mnode.load(truepath)
+            mnode.obj.set_attribute('name', os.path.basename(newpath))
+            mnode.obj.set_attribute('fullpath', os.path.basename(newpath))
+            mnode.release_lock()
+            if os.isdir(truepath):
+                truepath = truepath[:-10]
+                os.rename(truepath, os.path.dirname(truepath) + '/' + os.path.basename(newpath))
+            else:
+                os.rename(truepath, os.path.dirname(truepath) + '/' + os.path.basename(newpath) + '.metadata')
+        truepath = utils.get_true_path(user, request.Path) 
+        if os.isdir(truepath):
+            truepath = truepath + '/.metadata'
+        else:
+            truepath = truepath + '.metadata'
+        mnode = server_init._metadata_cache.get_usable_node(truepath)
+        mnode.acquire_lock()
+        if mnode.empty or not mnode.obj.path == truepath:
+            mnode.load(truepath)
+        jstr = json.dumps(mnode.obj.get_metadata())
+        mnode.release_lock()
+        return GRPCServer_pb2.StringResponse(PayLoad = jstr)
 
     def Delete(self, request, context):
-        return super().Delete(request, context)
+        session_id = request.SessionId
+        user = server_init._user_session.get_user_by_session(session_id)
+        truepath = utils.get_true_path(user, request.Path) 
+        if os.isdir(truepath):
+            truepath = truepath + '/.metadata'
+        else:
+            truepath = truepath + '.metadata'
+        mnode = server_init._metadata_cache.get_usable_node(truepath)
+        mnode.acquire_lock()
+        if mnode.empty or not mnode.obj.path == truepath:
+            mnode.load(truepath)
+        mnode.obj.set_attribute('is_deleted', True)
+        jstr = json.dumps(mnode.obj.get_metadata())
+        mnode.release_lock()
+        return GRPCServer_pb2.StringResponse(PayLoad = jstr)
 
     def Upload(self, request, context):
         session_id = request.SessionId
@@ -157,7 +260,7 @@ class GRPCServer_impl(GRPCServer_pb2_grpc.GRPCServerServicer):
             _nodeattrs['modified_time'] = modified_time
             _node = vnode.vnode(_nodeattrs, True, hashs, None)
             mnode.obj.add_vnode(_node)
-            retstr = mnode.obj.get_metadata()
+            retstr = json.dumps(mnode.obj.get_metadata())
             mnode.release_lock()
         else:
             mnode = server_init._metadata_cache.get_usable_node(truepath)
@@ -232,18 +335,82 @@ class GRPCServer_impl(GRPCServer_pb2_grpc.GRPCServerServicer):
             _node.set_attribute('modifier', user)
             _node.set_attribute('modified_time', modified_time)
             _mnode.obj.add_vnode(_node)
-            retstr = mnode.obj.get_metadata()
+            retstr = json.dumps(mnode.obj.get_metadata())
             mnode.release_lock()
         return GRPCServer_pb2.StringResponse(PayLoad = retstr)
 
     def Download(self, request, context):
-        return super().Download(request, context)
+        session_id = request.SessionId
+        user = server_init._user_session.get_user_by_session(session_id)
+        truepath = utils.get_true_path(user, request.Path) + '.metadata'
+        mnode = server_init._metadata_cache.get_usable_node(truepath)
+        mnode.acquire_lock()
+        if mnode.empty or not mnode.obj.path == truepath:
+            mnode.load(truepath)
+        hashs = mnode.obj.get_hashlist()
+        rev = mnode.obj.get_attribute('rev')
+        jstr = json.dumps({ 'rev': rev, 'hashs': hashs })
+        mnode.release_lock()
+        return GRPCServer_pb2.StringResponse(PayLoad = jstr)
 
     def DownloadBlock(self, request_iterator, context):
-        return super().DownloadBlock(request_iterator, context)
+        hashs = []
+        for request in request_iterator:
+            session_id = request.SessionId
+            path = request.Path
+            base_rev = request.BaseRev
+            hashs.append(request.Hash)
+        user = server_init._user_session.get_user_by_session(session_id)
+        truepath = utils.get_true_path(user, path) + '.metadata'
+        mnode = server_init._metadata_cache.get_usable_node(truepath)
+        mnode.acquire_lock()
+        if mnode.empty or not mnode.obj.path == truepath:
+            mnode.load(truepath)
+        data = mnode.obj.read(base_rev)
+        hashs_base = mnode.obj.get_hashlist(base_rev)
+        offsets_base = mnode.obj.get_offsets(base_rev)
+        blocks = []
+        for hash in hashs:
+            i = hashs_base.index(hash)
+            blockdata = data[offsets_base[i]:offsets_base[i+1]]
+            blocks.append({ 'hash': hash, 'data': blockdata })
+        jstr = json.dumps({ 'blocks': blocks })
+        mnode.release_lock()
+        return GRPCServer_pb2.StringResponse(PayLoad = jstr)
 
     def GetMetadata(self, request, context):
-        return super().GetMetadata(request, context)
+        session_id = request.SessionId
+        user = server_init._user_session.get_user_by_session(session_id)
+        truepath = utils.get_true_path(user, request.Path) 
+        if os.isdir(truepath):
+            truepath = truepath + '/.metadata'
+        else:
+            truepath = truepath + '.metadata'
+        mnode = server_init._metadata_cache.get_usable_node(truepath)
+        mnode.acquire_lock()
+        if mnode.empty or not mnode.obj.path == truepath:
+            mnode.load(truepath)
+        jstr = json.dumps(mnode.obj.get_metadata())
+        mnode.release_lock()
+        return GRPCServer_pb2.StringResponse(PayLoad = jstr)
 
     def ListFolder(self, request, context):
-        return super().ListFolder(request, context)
+        session_id = request.SessionId
+        user = server_init._user_session.get_user_by_session(session_id)
+        truepath = utils.get_true_path(user, request.Path)
+        metadatas = []
+        for child in os.listdir(truepath):
+            if child == '.metadata':
+                continue
+            elif child.endswith('.metadata'):
+                meta_path = '/'.join([truepath, child])
+            else:
+                meta_path = '/'.join([truepath, child, '.metadata'])
+            mnode = server_init._metadata_cache.get_usable_node(meta_path)
+            mnode.acquire_lock()
+            if mnode.empty or not mnode.obj.path == meta_path:
+                mnode.load(meta_path)
+            metadatas.append(mnode.obj.get_metadata())
+            mnode.release_lock()
+        jstr = json.dumps({ 'entries': metadatas })
+        return GRPCServer_pb2.StringResponse(PayLoad = jstr)

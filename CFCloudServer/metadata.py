@@ -42,8 +42,7 @@ class metadata(object):
         return attr
 
     def get_metadata(self):
-        # return a json string that can be directly return to client
-        return json.dumps(self.attributes)
+        return self.attributes
 
     def get_metadata_by_version(self, rev):
         attr = copy.deepcopy(self.attributes)

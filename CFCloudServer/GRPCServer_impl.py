@@ -373,7 +373,7 @@ class GRPCServer_impl(GRPCServer_pb2_grpc.GRPCServerServicer):
         for hash in hashs:
             i = hashs_base.index(hash)
             blockdata = data[offsets_base[i]:offsets_base[i+1]]
-            blocks.append({ 'hash': hash, 'data': blockdata })
+            blocks.append({ 'hash': hash, 'data': blockdata.hex() })
         jstr = json.dumps({ 'blocks': blocks })
         mnode.release_lock()
         return GRPCServer_pb2.StringResponse(PayLoad = jstr)

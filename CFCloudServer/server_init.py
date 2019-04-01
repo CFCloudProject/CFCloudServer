@@ -16,6 +16,7 @@ _hash_cache = cache.hashcache()
 _user_session = user_session.user_session(config.sqlite3_db_path)
 _block_index = block_index.block_index()
 _psi = psi.psi(config.psi_db_path)
+_log = open(config.efs_root + '/ot.log', 'w')
 
 def init():
     if not os.path.exists(config.efs_file_root):

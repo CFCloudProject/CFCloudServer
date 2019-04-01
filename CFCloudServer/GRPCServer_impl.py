@@ -11,6 +11,7 @@ import cdc
 import config
 import GRPCServer_pb2
 import GRPCServer_pb2_grpc
+import time
 
 
 class GRPCServer_impl(GRPCServer_pb2_grpc.GRPCServerServicer):
@@ -262,6 +263,8 @@ class GRPCServer_impl(GRPCServer_pb2_grpc.GRPCServerServicer):
             mnode.obj.add_vnode(_node)
             retstr = json.dumps(mnode.obj.get_metadata())
             mnode.release_lock()
+            server_init._log.write('0\n')
+            server_init._log.flush()
         else:
             mnode = server_init._metadata_cache.get_usable_node(truepath)
             mnode.acquire_lock()
@@ -291,10 +294,14 @@ class GRPCServer_impl(GRPCServer_pb2_grpc.GRPCServerServicer):
                         cnode.release_lock()
                 data_new = data_new + datas[i]
             if not is_checkpoint:
+                ot_start = time.time() * 1000
                 ot = operation_transform.operation_transform(mnode.obj.versions.optype)
                 oplist = ot.generate_oplist(data_base, data_new)
                 op_data = ot.oplist2bytes(oplist)
                 opsize = len(op_data)
+                ot_end = time.time() * 1000
+                server_init._log.write(str(ot_end - ot_start) + '\n')
+                server_init._log.flush()
                 if opsize >= _offset:
                     is_checkpoint = True
                 else:
@@ -309,6 +316,8 @@ class GRPCServer_impl(GRPCServer_pb2_grpc.GRPCServerServicer):
             else:
                 opsize = 0
                 ops = None
+                server_init._log.write('0\n')
+                server_init._log.flush()
             if is_checkpoint:
                 hash_to_store = hashs
                 data_to_store = datas

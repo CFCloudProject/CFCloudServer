@@ -176,7 +176,7 @@ class operation_transform(object):
             b_op = op.op2bytes(self.mode)
             length = len(b_op)
             b_length = utils.int2bytes(length)
-            ret += six.int2byte(length) + b_length + b_op
+            ret += six.int2byte(len(b_length)) + b_length + b_op
         return ret
 
     def bytes2oplist(self, b):

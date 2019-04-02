@@ -13,10 +13,7 @@ class operation(object):
         b_type = self.type.encode()
         b_index = six.int2byte(int(self.index / 256)) + six.int2byte(self.index % 256)
         if self.type == 'i':
-            if mode == 'b':
-                b_data = bytes.fromhex(self.data)
-            else:
-                b_data = self.data.encode()
+            b_data = self.data.encode()
         else:
             b_data = six.int2byte(int(self.data / 256)) + six.int2byte(self.data % 256)
         return b_type + b_index + b_data
@@ -25,10 +22,7 @@ class operation(object):
         type = chr(b[0])
         index = b[1] * 256 + b[2]
         if type == 'i':
-            if mode == 'b':
-                data = b[3 : len(b)].hex()
-            else:
-                data = b[3 : len(b)].decode()
+            data = b[3 : len(b)].decode()
         else:
             data = b[3] * 256 + b[4]
         return operation(type, index, data)

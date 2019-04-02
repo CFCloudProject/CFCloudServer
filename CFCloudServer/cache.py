@@ -61,7 +61,7 @@ class cache(object):
 
     def is_in_cache(self, key):
         self.lock.acquire()
-        node = table.get(key)
+        node = self.table.get(key)
         if node is None:
             self.lock.release()
             return False
@@ -71,7 +71,7 @@ class cache(object):
 
     def get_usable_node(self, key):
         self.lock.acquire()
-        node = table.get(key)
+        node = self.table.get(key)
         if node is None:
             if self.count == self.max:
                 node = self.head.prev

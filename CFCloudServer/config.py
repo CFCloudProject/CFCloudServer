@@ -4,14 +4,14 @@ one_day_in_seconds = 24 * 60 * 60
 
 # s3 config
 s3_config = { 
-    'access_key': 'AKIAI3GZAZ77PXWO3HOQ', 
-    'secret_key': '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', 
+    'access_key': 'AKIAJ2BO463KRGKMFD7Q', 
+    'secret_key': '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', 
     'region': 'ap-southeast-1', 
-    'bucket': '19cloud1' 
+    'bucket': '19cloud2' 
     }
 
 # efs config
-efs_root = ''
+efs_root = '/home/ec2-user/efs/getting-started'
 efs_file_root = efs_root + '/namespaces'
 
 # mysql config

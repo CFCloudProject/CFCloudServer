@@ -1,4 +1,4 @@
-import mysql
+import mysql.connector
 import config
 
 class block_index():
@@ -94,6 +94,6 @@ class block_index():
                    blocks[row[1]] = [{ 'block_id': row[0], 'container_id': row[1], 'offset': row[2], 'size': row[3] }]
                else:
                    blocks[row[1]].append({ 'block_id': row[0], 'container_id': row[1], 'offset': row[2], 'size': row[3] })
-            return blocks
+           return blocks
         except:
            return None

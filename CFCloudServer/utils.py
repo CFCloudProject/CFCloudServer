@@ -60,6 +60,12 @@ def int2bytes(n):
         n = int(n / 256)
     return ret
 
+def bytes2int(b):
+    ret = 0
+    for i in range(0, len(b)):
+        ret = ret * 256 + b[i]
+    return ret
+
 def adler32(b):
     s1 = 1
     s2 = 0

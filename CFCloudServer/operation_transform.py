@@ -1,5 +1,6 @@
 import re
 import six
+import utils
 import diff_match_patch
 
 class operation(object):
@@ -11,20 +12,22 @@ class operation(object):
 
     def op2bytes(self, mode):
         b_type = self.type.encode()
-        b_index = six.int2byte(int(self.index / 256)) + six.int2byte(self.index % 256)
+        b_index = utils.int2bytes(self.index)
+        b_index = six.int2byte(len(b_index)) + b_index
         if self.type == 'i':
             b_data = self.data.encode()
         else:
-            b_data = six.int2byte(int(self.data / 256)) + six.int2byte(self.data % 256)
+            b_data = utils.int2bytes(self.data)
         return b_type + b_index + b_data
 
     def bytes2op(b, mode):
         type = chr(b[0])
-        index = b[1] * 256 + b[2]
+        length = b[1]
+        index = utils.bytes2int(b[2:length+2])
         if type == 'i':
-            data = b[3 : len(b)].decode()
+            data = b[length+2:].decode()
         else:
-            data = b[3] * 256 + b[4]
+            data = utils.bytes2int(b[length+2:])
         return operation(type, index, data)
 
 class operation_transform(object):
@@ -172,7 +175,8 @@ class operation_transform(object):
         for op in l:
             b_op = op.op2bytes(self.mode)
             length = len(b_op)
-            ret += six.int2byte(int(length / 256)) + six.int2byte(length % 256) + b_op
+            b_length = utils.int2bytes(length)
+            ret += six.int2byte(length) + b_length + b_op
         return ret
 
     def bytes2oplist(self, b):
@@ -180,8 +184,10 @@ class operation_transform(object):
         length = len(b)
         oplist = []
         while pos < length:
-            op_len = b[pos] * 256 + b[pos + 1]
-            pos += 2
+            ll = b[pos]
+            pos += 1
+            op_len = utils.bytes2int(b[pos:pos+ll])
+            pos += ll
             oplist.append(operation.bytes2op(b[pos : pos + op_len], self.mode))
             pos += op_len
         return oplist

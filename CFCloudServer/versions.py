@@ -120,7 +120,7 @@ class versions(object):
             return base
 
     def next_is_checkpoint(self):
-        return self.rev - self.checkpoints[len(self.checkpoints) - 1] > 4
+        return self.rev - self.checkpoints[len(self.checkpoints) - 1] > 9
 
     def to_dict(self):
         dict = {}

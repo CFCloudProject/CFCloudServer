@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3427e958-c2d5-40fa-b33b-a4f463eec2ef</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>start.py</StartupFile>
+    <StartupFile>Start.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -38,8 +38,8 @@
     <Compile Include="GRPCServer_pb2_grpc.py" />
     <Compile Include="block_index.py" />
     <Compile Include="diff_match_patch.py" />
-    <Compile Include="s3connector.py" />
-    <Compile Include="start.py">
+    <Compile Include="S3Connector.py" />
+    <Compile Include="Start.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="GRPCServer_impl.py">

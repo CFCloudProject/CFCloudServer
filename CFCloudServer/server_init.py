@@ -1,4 +1,4 @@
-import s3connector
+import S3Connector
 import cache
 import user_session
 import block_index
@@ -8,7 +8,7 @@ import utils
 import os
 import uuid
 
-_s3_connector = s3connector.s3connector()
+_s3_connector = S3Connector.s3connector()
 _metadata_cache = cache.cache(config.metadata_cache_max_capacity, 'metadata')
 _container_cache = cache.cache(config.container_cache_max_capacity, 'container')
 _psi_cache = cache.cache(config.psi_cache_max_capacity, 'psinode')

@@ -81,8 +81,18 @@ def adler32(b):
             n -= 1
         s1 %= 65521
         s2 %= 65521
-    ret = int2bytes(s2) + int2bytes(s1)
-    return ret.hex()
+    b_s2 = int2bytes(s2).hex()
+    b_s1 = int2bytes(s1).hex()
+    if len(b_s2) == 0:
+        b_s2 = '0000'
+    if len(b_s2) == 2:
+        b_s2 = '00' + b_s2
+    if len(b_s1) == 0:
+        b_s1 = '0000'
+    if len(b_s1) == 2:
+        b_s1 = '00' + b_s1
+    ret = b_s2 + b_s1
+    return ret
 
 def md5(b):
     m = hashlib.md5()

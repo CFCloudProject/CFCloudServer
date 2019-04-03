@@ -4,10 +4,10 @@ one_day_in_seconds = 24 * 60 * 60
 
 # s3 config
 s3_config = { 
-    'access_key': 'AKIAJ2BO463KRGKMFD7Q', 
-    'secret_key': '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', 
-    'region': 'ap-southeast-1', 
-    'bucket': '19cloud2' 
+    'access_key': '', 
+    'secret_key': '', 
+    'region': '', 
+    'bucket': '' 
     }
 
 # efs config

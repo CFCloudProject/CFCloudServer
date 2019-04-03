@@ -5,7 +5,7 @@ one_day_in_seconds = 24 * 60 * 60
 
 # s3 config
 s3_config = { 
-    'access_key': '', 
+    'access_key': ' ', 
     'secret_key': '', 
     'region': 'ap-southeast-1', 
     'bucket': '19cloud2' 

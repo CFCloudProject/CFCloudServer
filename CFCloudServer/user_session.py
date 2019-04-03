@@ -6,7 +6,7 @@ import utils
 class user_session(object):
 
     def __init__(self, path):
-        self.conn = sqlite3.connect(path)
+        self.conn = sqlite3.connect(path, check_same_thread=False)
         cursor = self.conn.cursor()
         sql = "CREATE TABLE IF NOT EXISTS USER (USERID INT, EMAIL TEXT, PASSWORD TEXT, FIRSTNAME TEXT, LASTNAME TEXT);"
         cursor.execute(sql)

@@ -28,7 +28,7 @@ def get_new_user_id():
    return user_id_generator.next()
 
 # util methods
-def create_user_namesapce(user_id):
+def create_user_namespace(user_id):
     namespace = config.efs_file_root + '/user_' + str(user_id)
     if not os.path.exists(namespace):
         os.mkdir(namespace)

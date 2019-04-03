@@ -5,7 +5,7 @@ import os
 class psi(object):
 
     def __init__(self, path):
-        self.conn = sqlite3.connect(path)
+        self.conn = sqlite3.connect(path, check_same_thread=False)
         cursor = self.conn.cursor()
         sql = "CREATE TABLE IF NOT EXISTS PSI (FILEPATH TEXT, PSID TEXT);"
         cursor.execute(sql)
